@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { RSSItem, AtomEntry } from '../types/feed';
 import { chapterService, ChaptersData } from '../services/ChapterService';
+import { valueTimeSplitService, ValueTimeSplit } from '../services/ValueTimeSplitService';
 import './EpisodeDetailPage.css';
 
 interface EpisodeDetailPageProps {
@@ -150,6 +151,28 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const parseDurationToSeconds = (duration: string): number => {
+    if (!duration) return 0;
+    
+    // If already in seconds
+    if (!duration.includes(':')) {
+      return parseInt(duration) || 0;
+    }
+    
+    // Parse HH:MM:SS or MM:SS format
+    const parts = duration.split(':').map(part => parseInt(part) || 0);
+    
+    if (parts.length === 3) {
+      // HH:MM:SS
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if (parts.length === 2) {
+      // MM:SS
+      return parts[0] * 60 + parts[1];
+    }
+    
+    return 0;
+  };
+
   return (
     <div className="episode-detail-page">
       <header className="episode-header">
@@ -294,13 +317,39 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
             )}
             
             {chapters && chapters.chapters.length > 0 ? (
-              <div className="chapters-list">
-                {chapters.chapters.map((chapter, index) => {
+              <>
+                <div className="chapters-list">
+                  {chapters.chapters.map((chapter, index) => {
                   // Find the next chapter to calculate end time
                   const nextChapter = chapters.chapters[index + 1];
                   const startTime = chapterService.formatTime(chapter.startTime);
-                  const endTime = nextChapter ? chapterService.formatTime(nextChapter.startTime) : '';
                   
+                  // For the last chapter, use episode duration if available
+                  let endTime = '';
+                  if (nextChapter) {
+                    endTime = chapterService.formatTime(nextChapter.startTime);
+                  } else if (episodeData.duration) {
+                    // Convert duration to seconds and format
+                    const durationSeconds = parseDurationToSeconds(episodeData.duration);
+                    if (durationSeconds > 0) {
+                      endTime = chapterService.formatTime(durationSeconds);
+                    }
+                  }
+                  
+                  // Get value time splits for this chapter if available
+                  const valueTimeSplits = feedType === 'rss' ? 
+                    valueTimeSplitService.getEpisodeValueTimeSplits(episode as RSSItem) : [];
+                  
+                  // Find all splits that fall within this chapter's time range
+                  const chapterEndTime = index < chapters.chapters.length - 1 ? 
+                    chapters.chapters[index + 1].startTime : 
+                    chapter.startTime + 300; // 5 minutes default for last chapter
+                  
+                  const matchingSplits = valueTimeSplits.filter(split => {
+                    const splitEndTime = split.startTime + split.duration;
+                    return split.startTime < chapterEndTime && splitEndTime > chapter.startTime;
+                  });
+
                   return (
                     <div key={index} className="chapter-item">
                       <div className="chapter-time">
@@ -308,8 +357,20 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                       </div>
                       <div className="chapter-content">
                         <div className="chapter-title">{chapter.title}</div>
-                        {chapter.img && (
-                          <img src={chapter.img} alt="" className="chapter-image" />
+                        {matchingSplits.length > 0 && (
+                          <div className="value-time-splits">
+                            {matchingSplits.map((split, splitIndex) => (
+                              <div key={splitIndex} className="value-time-split">
+                                <span className="value-split-icon">⚡</span>
+                                <span className="value-split-info">
+                                  {valueTimeSplitService.formatValueTimeSplit(split)}
+                                </span>
+                                <span className="value-split-guid">
+                                  Feed: {split.remoteItem.feedGuid.slice(0, 8)}...
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         )}
                         {chapter.url && (
                           <a href={chapter.url} target="_blank" rel="noopener noreferrer" className="chapter-link">
@@ -317,10 +378,22 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                           </a>
                         )}
                       </div>
+                      <div className="chapter-media">
+                        {chapter.img && (
+                          <img src={chapter.img} alt={chapter.title} className="chapter-image" />
+                        )}
+                      </div>
                     </div>
                   );
                 })}
-              </div>
+                </div>
+                
+                {!episodeData.duration && (
+                  <div className="duration-notice">
+                    📝 Episode duration not provided in RSS feed - last chapter end time unavailable
+                  </div>
+                )}
+              </>
             ) : (
               <div className="chapters-info">
                 <p>
@@ -339,13 +412,9 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
           </div>
         )}
 
-        {/* Value 4 Value Section */}
-        {episodeData.value && (
-          <div className="episode-section">
-            <h2>Value 4 Value</h2>
-            <p>⚡ This episode supports Value 4 Value payments</p>
-          </div>
-        )}
+
+
+
 
         {/* Transcripts Section */}
         {episodeData.transcripts && (

@@ -296,6 +296,23 @@ export interface PodcastValue {
     suggested?: string;
   };
   'podcast:valueRecipient': PodcastValueRecipient[];
+  'podcast:valueTimeSplit'?: PodcastValueTimeSplit[];
+}
+
+export interface PodcastValueTimeSplit {
+  $: {
+    startTime: string;
+    remotePercentage: string;
+    duration: string;
+  };
+  'podcast:remoteItem': PodcastRemoteItem;
+}
+
+export interface PodcastRemoteItem {
+  $: {
+    feedGuid: string;
+    itemGuid?: string;
+  };
 }
 
 export interface PodcastValueRecipient {

@@ -231,13 +231,16 @@ const RSSFeedChecker: React.FC = () => {
     );
   };
 
-  // Use the background image from the HTML file
-  const showArtwork = 'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
+  // Get show artwork from RSS feed standard image element, fallback to latest episode image
+  const showArtwork = feedData?.rss?.channel?.image?.url || 
+                     feedData?.rss?.channel?.item?.[0]?.['itunes:image']?.$?.href ||
+                     feedData?.rss?.channel?.item?.[0]?.enclosure?.url?.replace(/\.(mp3|m4a|wav|ogg)$/i, '.jpg') ||
+                     'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
 
 
   return (
     <>
-      {/* Show artwork background - outside main container */}
+      {/* Show artwork background - from RSS feed or fallback */}
       <div 
         className="show-artwork-background"
         style={{ backgroundImage: `url(${showArtwork})` }}

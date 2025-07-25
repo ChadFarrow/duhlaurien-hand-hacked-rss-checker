@@ -3,6 +3,15 @@ export interface Chapter {
   title: string;
   img?: string;
   url?: string;
+  valueTimeSplit?: {
+    startTime: number;
+    remotePercentage: number;
+    duration: number;
+    remoteItem: {
+      feedGuid: string;
+      itemGuid?: string;
+    };
+  };
 }
 
 export interface ChaptersData {
