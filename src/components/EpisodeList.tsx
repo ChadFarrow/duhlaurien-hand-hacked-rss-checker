@@ -91,51 +91,25 @@ const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
 
       <div className="episodes-container">
         {episodeData.map((episode) => (
-          <div 
-            key={episode.id} 
-            className="episode-item"
+          <Link
+            key={episode.id}
+            to={`/episode/${encodeURIComponent(episode.id)}`}
+            className="episode-item-link"
           >
-            
-            <div className="episode-content">
-              <div className="episode-header">
-                <div className="episode-title-row">
-                  <h4 className="episode-title">{episode.title}</h4>
-                  <Link 
-                    to={`/episode/${encodeURIComponent(episode.id)}`}
-                    className="episode-link details inline"
-                  >
-                    📋 View Details
-                  </Link>
-                </div>
-                <div className="episode-meta">
-                  {episode.duration && (
-                    <span className="episode-duration">
-                      🕒 {formatDuration(episode.duration)}
-                    </span>
-                  )}
-                  {episode.pubDate && (
-                    <span className="episode-date">
-                      📅 {formatDate(episode.pubDate)}
-                    </span>
-                  )}
-                </div>
+            <div className="episode-item">
+              <div className="episode-header-single-line">
+                <h4 className="episode-title">{episode.title}</h4>
+                {episode.pubDate && (
+                  <span className="meta-badge date">
+                    📅 {formatDate(episode.pubDate)}
+                  </span>
+                )}
+                <span className="action-btn secondary compact">
+                  Details
+                </span>
               </div>
-              
-              
-              {episode.enclosureUrl && (
-                <div className="episode-actions">
-                  <a 
-                    href={episode.enclosureUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="episode-link audio"
-                  >
-                    🎵 Audio File
-                  </a>
-                </div>
-              )}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -392,23 +392,35 @@ const RSSFeedChecker: React.FC = () => {
           path="/episode/:episodeId" 
           element={
             analysis && feedData ? (
-              analysis.feedType === 'rss' && feedData?.rss?.channel?.item ? (
-                <EpisodeDetailPage 
-                  episodes={Array.isArray(feedData.rss.channel.item) 
-                    ? feedData.rss.channel.item 
-                    : [feedData.rss.channel.item]} 
-                  feedType="rss" 
-                />
-              ) : analysis.feedType === 'atom' && feedData?.feed?.entry ? (
-                <EpisodeDetailPage 
-                  episodes={Array.isArray(feedData.feed.entry) 
-                    ? feedData.feed.entry 
-                    : [feedData.feed.entry]} 
-                  feedType="atom" 
-                />
-              ) : (
-                <div>Episode data not available</div>
-              )
+              <>
+                {analysis.feedType === 'rss' && feedData?.rss?.channel?.item ? (
+                  <EpisodeDetailPage 
+                    episodes={Array.isArray(feedData.rss.channel.item) 
+                      ? feedData.rss.channel.item 
+                      : [feedData.rss.channel.item]} 
+                    feedType="rss" 
+                  />
+                ) : analysis.feedType === 'atom' && feedData?.feed?.entry ? (
+                  <EpisodeDetailPage 
+                    episodes={Array.isArray(feedData.feed.entry) 
+                      ? feedData.feed.entry 
+                      : [feedData.feed.entry]} 
+                    feedType="atom" 
+                  />
+                ) : (
+                  <div>Episode data not available</div>
+                )}
+                
+                {/* Show artwork background for episode pages too */}
+                {(feedData?.rss?.channel?.image?.url || feedData?.rss?.channel?.['itunes:image']?.$?.href) && (
+                  <div 
+                    className="show-artwork-background"
+                    style={{ 
+                      backgroundImage: `url(${feedData?.rss?.channel?.image?.url || feedData?.rss?.channel?.['itunes:image']?.$?.href})` 
+                    }}
+                  />
+                )}
+              </>
             ) : (
               <div>Feed data not loaded</div>
             )
