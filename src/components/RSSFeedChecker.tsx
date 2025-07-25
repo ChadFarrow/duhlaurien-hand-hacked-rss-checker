@@ -346,52 +346,7 @@ const RSSFeedChecker: React.FC = () => {
       {analysis && validation && compliance && (
         <div className="feed-results">
 
-          {/* Feed Information */}
-          <div className="feed-info">
-            <h3>📊 Feed Information</h3>
-            <div className="info-grid">
-              <div className="info-item">
-                <strong>Title:</strong> {analysis.metadata.title || 'Not specified'}
-              </div>
-              <div className="info-item">
-                <strong>Items:</strong> {analysis.metadata.itemCount}
-              </div>
-              <div className="info-item">
-                <strong>Last Updated:</strong> {analysis.metadata.lastUpdated || 'Not specified'}
-              </div>
-            </div>
-          </div>
 
-          {/* Statistics */}
-          <div className="feed-statistics">
-            <h3>📈 Statistics</h3>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-number">{analysis.statistics.totalItems}</span>
-                <span className="stat-label">Total Episodes</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{analysis.statistics.hasEnclosures}</span>
-                <span className="stat-label">With Audio</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{analysis.statistics.hasTranscripts}</span>
-                <span className="stat-label">With Transcripts</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{analysis.statistics.hasChapters}</span>
-                <span className="stat-label">With Chapters</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{analysis.statistics.hasFunding}</span>
-                <span className="stat-label">With Funding</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{analysis.statistics.hasValue || 0}</span>
-                <span className="stat-label">Value 4 Value</span>
-              </div>
-            </div>
-          </div>
 
           {/* Episode List */}
           {analysis.feedType === 'rss' && feedData?.rss?.channel?.item && (
