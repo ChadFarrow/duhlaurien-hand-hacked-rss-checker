@@ -2,12 +2,12 @@
   max-width: 1200px;
   margin: 0 auto;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(210, 203, 240, 0.15);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(20, 13, 27, 0.3);
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(5px);
 }
 
 .show-artwork-background {
@@ -36,8 +36,8 @@
 
 /* Header Section */
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(148, 136, 183, 0.8) 0%, rgba(55, 27, 83, 0.9) 100%);
+  color: #d2cbf0;
   padding: 40px 30px;
   text-align: center;
   position: relative;
@@ -122,19 +122,20 @@
 .feed-url-input {
   flex: 1;
   padding: 16px 20px;
-  border: none;
+  border: 2px solid rgba(156, 194, 209, 0.3);
   border-radius: 12px;
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(210, 203, 240, 0.2);
+  color: #140d1b;
+  box-shadow: 0 4px 12px rgba(20, 13, 27, 0.2);
   transition: all 0.3s ease;
 }
 
 .feed-url-input:focus {
   outline: none;
-  background: white;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background: rgba(210, 203, 240, 0.4);
+  border-color: #9cc2d1;
+  box-shadow: 0 6px 20px rgba(12, 150, 173, 0.3);
   transform: translateY(-2px);
 }
 
@@ -146,21 +147,21 @@
 
 .fetch-button {
   padding: 16px 32px;
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: white;
+  background: linear-gradient(135deg, #0c96ad 0%, #2c3a54 100%);
+  color: #d2cbf0;
   border: none;
   border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 12px rgba(12, 150, 173, 0.4);
   white-space: nowrap;
 }
 
 .fetch-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 6px 20px rgba(12, 150, 173, 0.6);
 }
 
 .fetch-button:disabled {

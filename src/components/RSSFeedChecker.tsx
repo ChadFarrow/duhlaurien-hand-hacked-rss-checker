@@ -226,20 +226,17 @@ const RSSFeedChecker: React.FC = () => {
     );
   };
 
-  // Get show artwork URL
-  const showArtwork = feedData?.rss?.channel?.image?.url || 
-                     (feedData?.rss?.channel?.['itunes:image'] as any)?.['@_href'];
+  // Use the new Homegrown Hits artwork
+  const showArtwork = '/homegrown-hits-new-artowrk.JPG';
 
 
   return (
     <>
       {/* Show artwork background - outside main container */}
-      {showArtwork && (
-        <div 
-          className="show-artwork-background"
-          style={{ backgroundImage: `url(${showArtwork})` }}
-        />
-      )}
+      <div 
+        className="show-artwork-background"
+        style={{ backgroundImage: `url(${showArtwork})` }}
+      />
       
       <div className="rss-feed-checker">
         <Routes>
