@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import axios from 'axios';
 import { feedParserService } from '../services/FeedParserService';
 import { podcasting20Validator } from '../services/Podcasting20Validator';
@@ -11,6 +12,7 @@ import {
 } from '../types/validation';
 import { RSSFeed } from '../types/feed';
 import EpisodeList from './EpisodeList';
+import EpisodeDetailPage from './EpisodeDetailPage';
 import './RSSFeedChecker.css';
 
 const RSSFeedChecker: React.FC = () => {
@@ -261,8 +263,14 @@ const RSSFeedChecker: React.FC = () => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  return (
-    <div className="rss-feed-checker">
+  // Component to render the main feed page
+  const MainFeedPage = () => {
+    // Get show artwork URL
+    const showArtwork = feedData?.rss?.channel?.image?.url || 
+                       feedData?.rss?.channel?.['itunes:image']?.$?.href;
+
+    return (
+    <>
       <div className="header">
         <div className="header-top">
           <h1>DuhLaurien's Hand-Hacked RSS Feed Checker</h1>
@@ -345,9 +353,6 @@ const RSSFeedChecker: React.FC = () => {
       {/* Analysis Results */}
       {analysis && validation && compliance && (
         <div className="feed-results">
-
-
-
           {/* Episode List */}
           {analysis.feedType === 'rss' && feedData?.rss?.channel?.item && (
             <EpisodeList 
@@ -365,11 +370,51 @@ const RSSFeedChecker: React.FC = () => {
               feedType="atom" 
             />
           )}
-
-
-
         </div>
       )}
+      
+      {/* Show artwork background */}
+      {showArtwork && (
+        <div 
+          className="show-artwork-background"
+          style={{ backgroundImage: `url(${showArtwork})` }}
+        />
+      )}
+    </>
+    );
+  };
+
+  return (
+    <div className="rss-feed-checker">
+      <Routes>
+        <Route path="/" element={<MainFeedPage />} />
+        <Route 
+          path="/episode/:episodeId" 
+          element={
+            analysis && feedData ? (
+              analysis.feedType === 'rss' && feedData?.rss?.channel?.item ? (
+                <EpisodeDetailPage 
+                  episodes={Array.isArray(feedData.rss.channel.item) 
+                    ? feedData.rss.channel.item 
+                    : [feedData.rss.channel.item]} 
+                  feedType="rss" 
+                />
+              ) : analysis.feedType === 'atom' && feedData?.feed?.entry ? (
+                <EpisodeDetailPage 
+                  episodes={Array.isArray(feedData.feed.entry) 
+                    ? feedData.feed.entry 
+                    : [feedData.feed.entry]} 
+                  feedType="atom" 
+                />
+              ) : (
+                <div>Episode data not available</div>
+              )
+            ) : (
+              <div>Feed data not loaded</div>
+            )
+          } 
+        />
+      </Routes>
     </div>
   );
 };
