@@ -1,6 +1,6 @@
 /* Scope all episode detail styles to only apply within episode detail page */
 .episode-detail-page {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
   background: rgba(255, 255, 255, 0.95);
@@ -225,26 +225,13 @@
   border: 1px solid #e9ecef;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
-  align-items: center;
+  align-items: flex-start;
 }
 
 .chapter-item:hover {
   background: #e9ecef;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.chapter-time {
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  color: #0c96ad;
-  min-width: 120px;
-  flex-shrink: 0;
-  font-size: 0.9rem;
-  background: rgba(12, 150, 173, 0.1);
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  text-align: center;
 }
 
 .chapter-content {
@@ -255,14 +242,32 @@
   min-width: 0;
 }
 
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 .chapter-title {
   font-weight: 600;
   color: #333;
   font-size: 1rem;
   line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.chapter-time {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #0c96ad;
+  font-size: 0.9rem;
+  background: rgba(12, 150, 173, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .chapter-media {
@@ -372,15 +377,18 @@
   margin-top: 0.5rem;
 }
 
-.value-time-split {
+.value-time-split-expanded {
+  background: rgba(12, 150, 173, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(12, 150, 173, 0.2);
+  padding: 0.75rem;
+}
+
+.value-split-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(12, 150, 173, 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(12, 150, 173, 0.3);
-  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
 }
 
 .value-split-icon {
@@ -390,18 +398,96 @@
 
 .value-split-info {
   color: #0c96ad;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-.value-split-guid {
+.value-split-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.split-recipient {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.split-recipient.remote {
+  background: rgba(12, 150, 173, 0.1);
+}
+
+.split-recipient.direct {
+  background: rgba(156, 194, 209, 0.1);
+}
+
+.split-recipient.host {
+  background: rgba(248, 249, 250, 0.8);
+  margin-left: 1rem;
+}
+
+.recipient-label {
+  font-weight: 500;
+  color: #495057;
+  min-width: 120px;
+}
+
+.recipient-percent {
+  font-weight: 700;
+  color: #0c96ad;
+  min-width: 60px;
+}
+
+.recipient-details {
   color: #6c757d;
   font-size: 0.8rem;
+  flex: 1;
 }
 
-.value-split-recipients {
-  color: #495057;
+.recipient-details div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.remote-episode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.remote-episode-info .episode-title {
+  font-weight: 600;
+  color: #333;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+  max-width: none;
+}
+
+.remote-episode-info .podcast-title {
+  font-weight: normal;
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.75rem;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+  max-width: none;
+}
+
+.split-divider {
+  margin: 0.5rem 0 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+  color: #333;
   font-size: 0.85rem;
-  font-weight: 500;
+  border-top: 1px solid rgba(12, 150, 173, 0.2);
 }
 
 .value-splits-list {
@@ -486,12 +572,17 @@
   border-radius: 8px;
   border: 1px solid #e9ecef;
   transition: all 0.2s ease;
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 
-.recipient-item:hover {
+.recipient-link:hover {
   background: #e9ecef;
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
 }
 
 .recipient-name {
@@ -513,7 +604,22 @@
   font-size: 0.8rem;
   color: #6c757d;
   word-break: break-all;
-  cursor: help;
+  position: relative;
+}
+
+.recipient-link .recipient-address::after {
+  content: '🔗';
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.recipient-link:hover .recipient-address::after {
+  opacity: 0.7;
 }
 
 /* Responsive design */

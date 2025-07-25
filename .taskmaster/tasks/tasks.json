@@ -209,21 +209,116 @@
           "Fix text color consistency for proper contrast",
           "Lock in final styling with git commits"
         ]
+      },
+      {
+        "id": 9,
+        "title": "Remove Value Recipient Functionality",
+        "description": "Remove Podcasting 2.0 value recipient functionality to simplify the application and eliminate 401 API errors from Podcast Index service.",
+        "priority": "high",
+        "estimatedTime": "2-3 hours",
+        "dependencies": [],
+        "status": "pending",
+        "file": "009_remove_value_recipients.md",
+        "requirements": [
+          "Remove Podcast Index API service calls",
+          "Remove value time split functionality",
+          "Remove value recipient display from chapters",
+          "Clean up unused imports and state variables",
+          "Eliminate 401 authentication errors",
+          "Simplify episode detail page",
+          "Maintain core RSS parsing and episode display",
+          "Keep chapter support and basic podcast features"
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Test Other RSS Feeds on Site",
+        "description": "Test the RSS feed checker with various other podcast feeds to ensure compatibility and functionality across different feed formats and sources.",
+        "priority": "medium",
+        "estimatedTime": "3-4 hours",
+        "dependencies": [],
+        "status": "pending",
+        "file": "010_test_other_feeds.md",
+        "requirements": [
+          "Test with popular podcast feeds (e.g., This American Life, Serial, Radiolab)",
+          "Test with different RSS feed formats and structures",
+          "Test with Atom feeds vs RSS feeds",
+          "Test with feeds that have different Podcasting 2.0 elements",
+          "Test with feeds that have chapters, transcripts, and value recipients",
+          "Test with feeds that have different image formats and sizes",
+          "Test with feeds that have different episode numbering schemes",
+          "Verify episode list and detail page functionality",
+          "Test navigation between episodes",
+          "Document any compatibility issues found",
+          "Test with feeds that have CORS restrictions",
+          "Verify error handling for malformed feeds"
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Fix Podcast Index API Errors",
+        "description": "Resolve the 401 authentication errors from Podcast Index API by implementing proper API key management and error handling.",
+        "priority": "high",
+        "estimatedTime": "2-3 hours",
+        "dependencies": [],
+        "status": "pending",
+        "file": "011_fix_podcast_index_api.md",
+        "requirements": [
+          "Obtain valid Podcast Index API credentials",
+          "Configure environment variables for API keys",
+          "Implement proper API authentication flow",
+          "Add error handling for API rate limits",
+          "Add error handling for invalid API responses",
+          "Implement API response caching to reduce calls",
+          "Add fallback behavior when API is unavailable",
+          "Test API integration with valid credentials",
+          "Document API setup process",
+          "Add API status monitoring",
+          "Implement graceful degradation when API fails",
+          "Update error messages to be user-friendly"
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Fix localhost:3000 Not Loading Issue",
+        "description": "Resolve the issue where http://localhost:3000 is not loading properly in the browser, ensuring the React development server starts and serves the application correctly.",
+        "priority": "critical",
+        "estimatedTime": "1-2 hours",
+        "dependencies": [],
+        "status": "pending",
+        "file": "012_fix_localhost_loading.md",
+        "requirements": [
+          "Check if React development server is running",
+          "Verify port 3000 is not blocked or in use",
+          "Check for compilation errors preventing server start",
+          "Verify package.json scripts are correct",
+          "Check for missing dependencies",
+          "Clear node_modules and reinstall if needed",
+          "Check for firewall or antivirus blocking localhost",
+          "Verify browser can access localhost:3000",
+          "Check for CORS issues with local development",
+          "Test with different browsers",
+          "Check for network configuration issues",
+          "Verify React app builds successfully",
+          "Check for TypeScript compilation errors",
+          "Ensure all required environment variables are set"
+        ]
       }
     ],
     "metadata": {
       "projectName": "duhlaurien-hand-hacked-rss-checker",
-      "totalTasks": 8,
-      "highPriority": 5,
-      "mediumPriority": 2,
+      "totalTasks": 12,
+      "highPriority": 7,
+      "mediumPriority": 3,
       "lowPriority": 1,
-      "readyToStart": 0,
+      "criticalPriority": 1,
+      "readyToStart": 4,
       "inProgress": 0,
       "blocked": 0,
       "lastUpdated": "2025-07-25",
       "created": "2025-07-25T11:42:59.146Z",
       "description": "Tasks for podcast episode viewer application",
-      "updated": "2025-07-25T13:05:00.000Z"
+      "updated": "2025-07-25T17:45:00.000Z"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { RSSItem, PodcastValueTimeSplit } from '../types/feed';
+import { RSSItem } from '../types/feed';
 
 export interface ValueTimeSplit {
   startTime: number;
@@ -32,32 +32,23 @@ class ValueTimeSplitService {
    * Extract value time splits from an RSS item
    */
   extractValueTimeSplits(item: RSSItem): ValueTimeSplit[] {
-    console.log('Extracting value time splits from item:', item.title);
-    console.log('Item podcast:value:', item['podcast:value']);
     
     const value = item['podcast:value'];
     if (!value || !value['podcast:valueTimeSplit']) {
-      console.log('No value time splits found');
       return [];
     }
 
     // Debug: Log the structure to understand what we're working with
-    console.log('Value time splits raw data:', value['podcast:valueTimeSplit']);
 
     const timeSplits = Array.isArray(value['podcast:valueTimeSplit']) 
       ? value['podcast:valueTimeSplit'] 
       : [value['podcast:valueTimeSplit']];
 
-    console.log('Processing time splits:', timeSplits.length);
     
     const results = timeSplits
       .map((split: any, index: number): ValueTimeSplit | null => {
-        console.log(`Processing split ${index}:`, split);
-        console.log(`Split has @_startTime:`, !!split['@_startTime']);
-        console.log(`Split has podcast:remoteItem:`, !!split['podcast:remoteItem']);
         
         if (!split) {
-          console.log(`Split ${index} filtered out - null or undefined`);
           return null;
         }
         
@@ -93,7 +84,6 @@ class ValueTimeSplitService {
             }));
           }
           
-          console.log(`Successfully parsed split ${index}:`, result);
           return result;
         } catch (error) {
           console.warn('Error parsing value time split:', error, split);
@@ -102,7 +92,6 @@ class ValueTimeSplitService {
       })
       .filter((split): split is ValueTimeSplit => split !== null);
     
-    console.log('Final results:', results);
     return results;
   }
 

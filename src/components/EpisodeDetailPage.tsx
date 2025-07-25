@@ -4,6 +4,7 @@ import { RSSItem, AtomEntry } from '../types/feed';
 import { chapterService, ChaptersData } from '../services/ChapterService';
 import { valueTimeSplitService, ValueTimeSplit } from '../services/ValueTimeSplitService';
 import { valueRecipientService } from '../services/ValueRecipientService';
+import { podcastIndexService } from '../services/PodcastIndexService';
 import './EpisodeDetailPage.css';
 
 interface EpisodeDetailPageProps {
@@ -16,6 +17,8 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
   const navigate = useNavigate();
   const [chapters, setChapters] = useState<ChaptersData | null>(null);
   const [loadingChapters, setLoadingChapters] = useState(false);
+  const [podcastNames, setPodcastNames] = useState<Map<string, string>>(new Map());
+  const [episodeInfo, setEpisodeInfo] = useState<Map<string, {title: string, podcastTitle: string}>>(new Map());
 
   // Find the episode by ID
   let episode: RSSItem | AtomEntry | undefined;
@@ -61,6 +64,54 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
     };
 
     fetchChapters();
+  }, [episode, feedType]);
+
+  // Fetch podcast and episode info for value time splits
+  useEffect(() => {
+    const fetchRemoteInfo = async () => {
+      if (feedType === 'rss' && episode) {
+        const rssItem = episode as RSSItem;
+        const valueTimeSplits = valueTimeSplitService.getEpisodeValueTimeSplits(rssItem);
+        
+        // Get unique feed GUIDs for podcast names
+        const feedGuids = Array.from(new Set(
+          valueTimeSplits
+            .filter(split => split.remoteItem?.feedGuid)
+            .map(split => split.remoteItem!.feedGuid)
+        ));
+
+        // Get unique remote items for episode info
+        const remoteItems = valueTimeSplits
+          .filter(split => split.remoteItem?.feedGuid && split.remoteItem?.itemGuid)
+          .map(split => ({
+            feedGuid: split.remoteItem!.feedGuid,
+            itemGuid: split.remoteItem!.itemGuid!,
+            key: `${split.remoteItem!.feedGuid}:${split.remoteItem!.itemGuid}`
+          }));
+
+        try {
+          // Fetch podcast names
+          if (feedGuids.length > 0) {
+            const podcastInfoMap = await podcastIndexService.getPodcastsByGuids(feedGuids);
+            const nameMap = new Map<string, string>();
+            
+            podcastInfoMap.forEach((info, guid) => {
+              nameMap.set(guid, info.title);
+            });
+            
+            setPodcastNames(nameMap);
+          }
+
+          // Skip episode information fetching while API is unavailable
+          // This will be re-enabled once the Podcast Index API is stable
+          setEpisodeInfo(new Map());
+        } catch (error) {
+          console.error('Error fetching remote info:', error);
+        }
+      }
+    };
+
+    fetchRemoteInfo();
   }, [episode, feedType]);
 
   if (!episode) {
@@ -263,13 +314,19 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                   </div>
                   <div className="recipients-grid">
                     {valueBlock.recipients.map((recipient, index) => (
-                      <div key={index} className="recipient-item">
+                      <a 
+                        key={index} 
+                        className="recipient-item recipient-link"
+                        href={`https://amboss.space/node/${recipient.address}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <div className="recipient-name">{recipient.name}</div>
                         <div className="recipient-split">{recipient.split}%</div>
                         <div className="recipient-address" title={recipient.address}>
                           {recipient.address.slice(0, 8)}...{recipient.address.slice(-8)}
                         </div>
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -386,33 +443,101 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
 
                   return (
                     <div key={index} className="chapter-item">
-                      <div className="chapter-time">
-                        {startTime}{endTime && ` - ${endTime}`}
-                      </div>
                       <div className="chapter-content">
-                        <div className="chapter-title">{chapter.title}</div>
+                        <div className="chapter-header">
+                          <div className="chapter-title">{chapter.title}</div>
+                          <div className="chapter-time">
+                            {startTime}{endTime && ` - ${endTime}`}
+                          </div>
+                        </div>
                         {matchingSplits.length > 0 && (
                           <div className="value-time-splits">
-                            {matchingSplits.map((split, splitIndex) => (
-                              <div key={splitIndex} className="value-time-split">
-                                <span className="value-split-icon">⚡</span>
-                                <span className="value-split-info">
-                                  {valueTimeSplitService.formatValueTimeSplit(split)}
-                                </span>
-                                {split.remoteItem && (
-                                  <span className="value-split-guid">
-                                    Feed: {split.remoteItem.feedGuid.slice(0, 8)}...
-                                  </span>
-                                )}
-                                {split.valueRecipients && split.valueRecipients.length > 0 && (
-                                  <span className="value-split-recipients">
-                                    {split.valueRecipients.map(r => `${r.name} (${r.split}%)`).join(', ')}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                            {matchingSplits.map((split, splitIndex) => {
+                              // Get the episode's main value recipients
+                              const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
+                              const hostPercentage = 100 - split.remotePercentage;
+                              
+                              return (
+                                <div key={splitIndex} className="value-time-split-expanded">
+                                  <div className="value-split-header">
+                                    <span className="value-split-icon">⚡</span>
+                                    <span className="value-split-info">
+                                      {valueTimeSplitService.formatValueTimeSplit(split)}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="value-split-breakdown">
+                                    {/* Remote recipient */}
+                                    {split.remoteItem && (
+                                      <div className="split-recipient remote">
+                                        <span className="recipient-label">
+                                          {podcastNames.get(split.remoteItem.feedGuid) || 'Remote'}:
+                                        </span>
+                                        <span className="recipient-percent">{split.remotePercentage}%</span>
+                                        <span className="recipient-details">
+                                          {(() => {
+                                            const episodeKey = split.remoteItem.itemGuid ? 
+                                              `${split.remoteItem.feedGuid}:${split.remoteItem.itemGuid}` : null;
+                                            const remoteEpisodeInfo = episodeKey ? episodeInfo.get(episodeKey) : null;
+                                            
+                                            
+                                            if (remoteEpisodeInfo) {
+                                              return (
+                                                <div className="remote-episode-info">
+                                                  <div className="episode-title">{remoteEpisodeInfo.title}</div>
+                                                  <div className="podcast-title">from {remoteEpisodeInfo.podcastTitle}</div>
+                                                </div>
+                                              );
+                                            } else if (!podcastNames.get(split.remoteItem.feedGuid)) {
+                                              return (
+                                                <>
+                                                  <div>Feed: {split.remoteItem.feedGuid}</div>
+                                                  {split.remoteItem.itemGuid && (
+                                                    <div>Item: {split.remoteItem.itemGuid}</div>
+                                                  )}
+                                                </>
+                                              );
+                                            }
+                                            return null;
+                                          })()}
+                                        </span>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Direct recipients in time split */}
+                                    {split.valueRecipients && split.valueRecipients.map((recipient, idx) => (
+                                      <div key={idx} className="split-recipient direct">
+                                        <span className="recipient-label">{recipient.name}:</span>
+                                        <span className="recipient-percent">{recipient.split}%</span>
+                                      </div>
+                                    ))}
+                                    
+                                    {/* Host recipients (remaining percentage) */}
+                                    {split.remoteItem && mainValueBlock && mainValueBlock.recipients.length > 0 && (
+                                      <>
+                                        <div className="split-divider">
+                                          <span>Hosts ({hostPercentage}%):</span>
+                                        </div>
+                                        {mainValueBlock.recipients.map((recipient, idx) => (
+                                          <div key={idx} className="split-recipient host">
+                                            <span className="recipient-label">{recipient.name}:</span>
+                                            <span className="recipient-percent">
+                                              {(hostPercentage * recipient.split / 100).toFixed(2)}%
+                                            </span>
+                                            <span className="recipient-details">
+                                              ({recipient.split}% of {hostPercentage}%)
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
+
                         {chapter.url && (
                           <a href={chapter.url} target="_blank" rel="noopener noreferrer" className="chapter-link">
                             🔗 Link
