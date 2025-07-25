@@ -108,60 +108,100 @@
       },
       {
         "id": 4,
-        "title": "Add Episode Playback and Value Block Validation",
-        "description": "Add functionality to view what was played on each episode and validate Value Blocks for Podcasting 2.0 value4value features.",
+        "title": "Transform to Podcast Episode Viewer",
+        "description": "Transform the RSS validator into a podcast episode viewer with episode list, detail pages, and navigation.",
         "priority": "high",
-        "estimatedTime": "6-8 hours",
+        "estimatedTime": "8-10 hours",
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "file": "004_episode_playback_value_blocks.md",
         "requirements": [
-          "Episode playback information display showing audio content details",
-          "Value Block validation for Podcasting 2.0 value4value features",
-          "Check for valid Value Block structure and content",
-          "Display episode-specific playback statistics",
-          "Validate Value Block recipients and amounts",
-          "Show episode duration and content type information",
-          "Check for proper Value Block formatting and compliance with Podcasting 2.0 spec"
+          "Episode list display with titles and metadata",
+          "Episode detail pages with full information",
+          "Navigation between episodes and back to list",
+          "Display episode duration and publication date", 
+          "Show episode descriptions and content",
+          "Audio file download/play links",
+          "Chapter support and display"
         ]
       },
       {
         "id": 5,
-        "title": "Add Chapter Overlap Validation",
-        "description": "Add functionality to check that podcast chapters don't overlap and are properly timed.",
+        "title": "Implement Transparent Glassmorphism Theme",
+        "description": "Design and implement a modern glassmorphism UI with transparent backgrounds and custom color palette.",
+        "priority": "high",
+        "estimatedTime": "6-8 hours",
+        "dependencies": [
+          4
+        ],
+        "status": "done",
+        "file": "005_transparent_theme.md",
+        "requirements": [
+          "Remove dark/light mode toggle functionality",
+          "Design custom color palette (#d2cbf0, #5e618f, #140d1b, #9cc2d1, etc.)",
+          "Implement glassmorphism effects with backdrop-filter",
+          "Set show artwork as full-page background",
+          "Create transparent containers with proper readability",
+          "Update all text colors for transparent backgrounds",
+          "Apply consistent styling across all components"
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Fix Episode URL Routing",
+        "description": "Fix episode URLs to use actual episode numbers from titles instead of array indices.",
+        "priority": "high",
+        "estimatedTime": "2-3 hours",
+        "dependencies": [
+          4, 5
+        ],
+        "status": "done",
+        "file": "006_episode_routing.md",
+        "requirements": [
+          "Extract episode numbers from titles like 'Homegrown Hits - Episode 95'",
+          "Update EpisodeList ID generation to use episode numbers",
+          "Update EpisodeDetailPage lookup logic to match",
+          "Ensure URLs like /episode/episode-95 show correct episode data",
+          "Fix episode data mismatch between list and detail views"
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Add Chapter Support and Display",
+        "description": "Add functionality to display podcast chapters with timestamps and navigation.",
         "priority": "medium",
         "estimatedTime": "4-6 hours",
         "dependencies": [
-          1
+          4
         ],
-        "status": "pending",
-        "file": "005_chapter_overlap_validation.md",
+        "status": "done", 
+        "file": "007_chapter_support.md",
         "requirements": [
-          "Parse and validate podcast chapter timestamps",
-          "Check for overlapping chapter time ranges",
-          "Validate chapter start and end times",
-          "Detect gaps between chapters",
-          "Verify chapter time format compliance",
-          "Show chapter timeline visualization",
-          "Provide warnings for overlapping or malformed chapters",
-          "Validate chapter titles and descriptions"
+          "Parse podcast:chapters from RSS feed",
+          "Fetch and display chapter data from external JSON files",
+          "Show chapter timestamps and titles",
+          "Display chapter images and links if available",
+          "Format chapter times properly (HH:MM:SS)",
+          "Handle chapter loading states and errors",
+          "Apply transparent theme styling to chapter components"
         ]
       }
     ],
     "metadata": {
       "projectName": "duhlaurien-hand-hacked-rss-checker",
-      "totalTasks": 5,
-      "highPriority": 2,
+      "totalTasks": 7,
+      "highPriority": 4,
       "mediumPriority": 2,
-      "lowPriority": 0,
-      "readyToStart": 2,
+      "lowPriority": 1,
+      "readyToStart": 0,
+      "inProgress": 0,
       "blocked": 0,
-      "lastUpdated": "2025-01-27",
+      "lastUpdated": "2025-07-25",
       "created": "2025-07-25T11:42:59.146Z",
-      "description": "Tasks for master context",
-      "updated": "2025-07-25T12:17:39.782Z"
+      "description": "Tasks for podcast episode viewer application",
+      "updated": "2025-07-25T12:30:00.000Z"
     }
   }
 }
