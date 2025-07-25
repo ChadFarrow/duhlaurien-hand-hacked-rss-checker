@@ -252,12 +252,19 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                          !title.includes('episode') &&
                          !title.includes('tiddicate') &&
                          !title.includes('hgh ') &&
-                         !title.includes('in the hitter');
+                         !title.includes('in the hitter') &&
+                         !title.includes('07-24-25') &&
+                         !title.includes('live') &&
+                         !title.includes('homegrown hits');
                 })
                 .map((track, index, filteredTracks) => {
-                  const nextTrack = filteredTracks[index + 1];
+                  // Find the next chapter (any type) after this track's start time
+                  const nextChapter = chapters.chapters.find(chapter => 
+                    chapter.startTime > track.startTime
+                  );
+                  
                   const startTime = chapterService.formatTime(track.startTime);
-                  const endTime = nextTrack ? chapterService.formatTime(nextTrack.startTime) : '';
+                  const endTime = nextChapter ? chapterService.formatTime(nextChapter.startTime) : '';
                   
                   return (
                     <div key={index} className="track-item">
@@ -288,24 +295,31 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
             
             {chapters && chapters.chapters.length > 0 ? (
               <div className="chapters-list">
-                {chapters.chapters.map((chapter, index) => (
-                  <div key={index} className="chapter-item">
-                    <div className="chapter-time">
-                      {chapterService.formatTime(chapter.startTime)}
+                {chapters.chapters.map((chapter, index) => {
+                  // Find the next chapter to calculate end time
+                  const nextChapter = chapters.chapters[index + 1];
+                  const startTime = chapterService.formatTime(chapter.startTime);
+                  const endTime = nextChapter ? chapterService.formatTime(nextChapter.startTime) : '';
+                  
+                  return (
+                    <div key={index} className="chapter-item">
+                      <div className="chapter-time">
+                        {startTime}{endTime && ` - ${endTime}`}
+                      </div>
+                      <div className="chapter-content">
+                        <div className="chapter-title">{chapter.title}</div>
+                        {chapter.img && (
+                          <img src={chapter.img} alt="" className="chapter-image" />
+                        )}
+                        {chapter.url && (
+                          <a href={chapter.url} target="_blank" rel="noopener noreferrer" className="chapter-link">
+                            🔗 Link
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <div className="chapter-content">
-                      <div className="chapter-title">{chapter.title}</div>
-                      {chapter.img && (
-                        <img src={chapter.img} alt="" className="chapter-image" />
-                      )}
-                      {chapter.url && (
-                        <a href={chapter.url} target="_blank" rel="noopener noreferrer" className="chapter-link">
-                          🔗 Link
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="chapters-info">

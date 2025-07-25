@@ -187,12 +187,34 @@
           "Handle chapter loading states and errors",
           "Apply transparent theme styling to chapter components"
         ]
+      },
+      {
+        "id": 8,
+        "title": "Finalize UI Polish and User Experience",
+        "description": "Complete final UI improvements including episode list optimization, track listings, and styling consistency.",
+        "priority": "high",
+        "estimatedTime": "4-6 hours",
+        "dependencies": [
+          5, 6, 7
+        ],
+        "status": "done",
+        "file": "008_ui_polish.md",
+        "requirements": [
+          "Remove redundant Details button from episode list",
+          "Update episode date badges to match theme colors",
+          "Add track listings with timestamps to episode detail pages",
+          "Remove all white backgrounds and borders from main page",
+          "Ensure consistent glassmorphism effects throughout",
+          "Center metadata items in episode detail pages",
+          "Fix text color consistency for proper contrast",
+          "Lock in final styling with git commits"
+        ]
       }
     ],
     "metadata": {
       "projectName": "duhlaurien-hand-hacked-rss-checker",
-      "totalTasks": 7,
-      "highPriority": 4,
+      "totalTasks": 8,
+      "highPriority": 5,
       "mediumPriority": 2,
       "lowPriority": 1,
       "readyToStart": 0,
@@ -201,7 +223,7 @@
       "lastUpdated": "2025-07-25",
       "created": "2025-07-25T11:42:59.146Z",
       "description": "Tasks for podcast episode viewer application",
-      "updated": "2025-07-25T12:30:00.000Z"
+      "updated": "2025-07-25T13:05:00.000Z"
     }
   }
 }
