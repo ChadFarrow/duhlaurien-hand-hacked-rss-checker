@@ -23,22 +23,27 @@ class PodcastIndexService {
   
   // Fallback podcast names for common GUIDs when API is unavailable
   private fallbackNames = new Map<string, string>([
-    ['879febfc-538d-5c10-a34e-a9de5a7666ca', 'DuhLaurien'],
-    ['0653114c-dd08-5f36-863d-009d56bccb8d', 'Music Artist'],
-    ['5c87b91a-2141-590b-ab19-93e8a6f2d885', 'Independent Artist'],
-    ['e745b541-8bc1-42b5-9d2d-5c3a67817d47', 'Podcast Creator'],
-    ['acddbb03-064b-5098-87ca-9b146beb12e8', 'Music Producer'],
-    ['a2d2e313-9cbd-5169-b89c-ab07b33ecc33', 'Sound Artist'],
-    ['05eaeb68-1d19-5f15-afb6-06aeba50381b', 'Audio Creator'],
-    ['5a95f9d8-35e3-51f5-a269-ba1df36b4bd8', 'Digital Artist'],
-    ['671612fb-9039-5189-9d4b-0fd9df2093dd', 'Music Collective'],
-    ['63fb0d8e-793f-5033-bbb4-39a836e3da76', 'Electronic Artist'],
-    ['d6b85f98-6d7a-5eca-b288-dafae4381a1d', 'Indie Musician']
+    ['879febfc-538d-5c10-a34e-a9de5a7666ca', 'The Thinking Man\'s Redux'],
+    ['0653114c-dd08-5f36-863d-009d56bccb8d', 'Beach Trash'],
+    ['5c87b91a-2141-590b-ab19-93e8a6f2d885', 'The Northerns'],
+    ['e745b541-8bc1-42b5-9d2d-5c3a67817d47', '44'],
+    ['acddbb03-064b-5098-87ca-9b146beb12e8', 'Stay Awhile'],
+    ['a2d2e313-9cbd-5169-b89c-ab07b33ecc33', 'The Heycitizen Experience'],
+    ['05eaeb68-1d19-5f15-afb6-06aeba50381b', 'Grey State'],
+    ['5a95f9d8-35e3-51f5-a269-ba1df36b4bd8', 'Bloodshot Lies - The Album'],
+    ['671612fb-9039-5189-9d4b-0fd9df2093dd', 'That\'s The Spirit!'],
+    ['63fb0d8e-793f-5033-bbb4-39a836e3da76', 'Bowl Covers'],
+    ['d6b85f98-6d7a-5eca-b288-dafae4381a1d', 'Street Clones']
   ]);
 
   constructor() {
     this.apiKey = process.env.REACT_APP_PODCAST_INDEX_API_KEY || '';
     this.apiSecret = process.env.REACT_APP_PODCAST_INDEX_API_SECRET || '';
+    
+    // Warn if credentials are missing
+    if (!this.apiKey || !this.apiSecret) {
+      console.warn('Podcast Index API credentials not found in environment variables');
+    }
   }
 
   private async sha1(message: string): Promise<string> {
@@ -89,10 +94,13 @@ class PodcastIndexService {
         this.cache.set(feedGuid, podcastInfo);
         return podcastInfo;
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.warn(`Podcast Index API error for GUID ${feedGuid}:`, error.response?.status || error.message);
+      
       // If API is unavailable, try fallback names
       const fallbackName = this.fallbackNames.get(feedGuid);
       if (fallbackName) {
+        console.log(`Using fallback name "${fallbackName}" for GUID ${feedGuid}`);
         const fallbackInfo: PodcastInfo = {
           id: 0,
           title: fallbackName,
@@ -126,8 +134,8 @@ class PodcastIndexService {
           feedGuid: feedGuid
         };
       }
-    } catch (error) {
-      console.error('Error fetching episode by GUID:', error);
+    } catch (error: any) {
+      console.warn(`Episode fetch error for item GUID ${itemGuid}:`, error.response?.status || error.message);
     }
 
     return null;
