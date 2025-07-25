@@ -1,46 +1,166 @@
-# Getting Started with Create React App
+# DuhLaurien's Hand-Hacked RSS Feed Checker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web-based application that validates and analyzes RSS feeds for Podcasting 2.0 compliance, providing detailed feedback on feed structure, metadata, and Podcasting 2.0 specific elements.
 
-## Available Scripts
+## 🎯 Project Overview
 
-In the project directory, you can run:
+This application helps podcast creators, hosting platforms, and developers ensure their RSS feeds meet Podcasting 2.0 standards. It provides comprehensive validation feedback, educational content, and actionable recommendations for feed optimization.
 
-### `npm start`
+### Key Features
+- **RSS Feed Validation**: Parse and validate RSS feeds for Podcasting 2.0 compliance
+- **Comprehensive Analysis**: Check required and optional Podcasting 2.0 elements
+- **Educational Content**: Learn about validation rules and best practices
+- **Modern UI**: Clean, responsive interface with dark/light theme support
+- **Export Reports**: Save validation results in JSON and CSV formats
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 🚀 Getting Started
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Prerequisites
+- Node.js 16+ 
+- npm or yarn
 
-### `npm test`
+### Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+cd dl-rss-checker
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Install dependencies
+npm install
 
-### `npm run build`
+# Start the development server
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📋 Task Master Integration
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This project uses [Claude Task Master](https://github.com/eyaltoledano/claude-task-master) for AI-powered task management and development assistance.
 
-### `npm run eject`
+### Task Master Setup
+The project is configured with Task Master and includes:
+- **PRD**: Comprehensive Product Requirements Document
+- **Tasks**: 5 structured development tasks with priorities and dependencies
+- **Templates**: Reusable templates for future projects
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Available Tasks
+1. **Task 1**: Enhance RSS Feed Parsing and Validation (High Priority)
+2. **Task 2**: Improve User Interface and User Experience (High Priority)
+3. **Task 3**: Implement CORS Proxy and Feed Access (Medium Priority)
+4. **Task 4**: Add Educational Content and Documentation (Medium Priority)
+5. **Task 5**: Export and Reporting Functionality (Low Priority)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Using Task Master
+```bash
+# List all tasks
+npx task-master list
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+# Show next recommended task
+npx task-master next
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# Show specific task(s)
+npx task-master show 1,3,5
+```
 
-## Learn More
+### AI Assistant Commands
+In your editor's AI chat, you can:
+- "What's the next task I should work on?"
+- "Can you help me implement task 1?"
+- "Show me tasks 1, 3, and 5"
+- "Can you help me expand task 4?"
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🛠️ Technology Stack
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **Frontend**: React 19+ with TypeScript
+- **Styling**: CSS3 with modern design principles
+- **XML Parsing**: xml2js library
+- **HTTP Requests**: Axios for API calls
+- **Build Tool**: Create React App
+- **Task Management**: Claude Task Master
+
+## 📁 Project Structure
+
+```
+dl-rss-checker/
+├── .taskmaster/           # Task Master configuration and tasks
+│   ├── config.json       # Task Master project configuration
+│   ├── docs/             # Project documentation
+│   │   └── prd.txt       # Product Requirements Document
+│   ├── tasks/            # Development tasks
+│   └── templates/        # Reusable templates
+├── public/               # Static assets
+├── src/                  # Source code
+│   ├── components/       # React components
+│   ├── services/         # Business logic services
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Utility functions
+├── package.json
+└── README.md
+```
+
+## 🎨 Features
+
+### Core Functionality
+- RSS feed URL input and validation
+- Podcasting 2.0 compliance checking
+- Structured validation results with severity levels
+- Compliance scoring and recommendations
+
+### User Experience
+- Modern, responsive design
+- Dark/light theme toggle
+- Accessibility compliance (WCAG 2.1 AA)
+- Mobile-friendly interface
+- Real-time validation feedback
+
+### Advanced Features
+- CORS proxy support for restricted feeds
+- Educational content and documentation
+- Export functionality (JSON, CSV)
+- Feed comparison capabilities (planned)
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run tests with coverage
+npm test -- --coverage
+```
+
+## 📦 Build and Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Deploy to static hosting
+# The build folder contains the production-ready application
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🔗 Resources
+
+- [Podcasting 2.0 Specification](https://github.com/Podcastindex-org/podcast-namespace)
+- [RSS 2.0 Specification](https://cyber.harvard.edu/rss/rss.html)
+- [Claude Task Master](https://github.com/eyaltoledano/claude-task-master)
+
+## 📞 Support
+
+For questions or support, please open an issue in the repository.

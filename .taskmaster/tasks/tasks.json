@@ -1,0 +1,167 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Enhance RSS Feed Parsing and Validation",
+        "description": "Enhance the current RSS feed parsing functionality to properly handle Podcasting 2.0 elements and provide comprehensive validation feedback.",
+        "priority": "high",
+        "estimatedTime": "4-6 hours",
+        "dependencies": [],
+        "status": "done",
+        "file": "001_enhance_feed_parsing.md",
+        "requirements": [
+          "FR2.1: Parse RSS/XML feed content accurately",
+          "FR2.2: Extract and validate required RSS elements",
+          "FR2.3: Identify Podcasting 2.0 specific elements",
+          "FR2.4: Handle malformed XML gracefully with error reporting",
+          "FR2.5: Support namespaced elements (iTunes, Google Play, etc.)"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Feed Parser Service",
+            "description": "Create src/services/FeedParserService.ts with comprehensive RSS/XML parsing, support for multiple formats, and proper namespaced element handling",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 2,
+            "title": "Implement Podcasting 2.0 Validation",
+            "description": "Create src/services/Podcasting20Validator.ts with validation rules for Podcasting 2.0 elements, required/optional tag checking, and episode-level validation",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 3,
+            "title": "Create Validation Result Types",
+            "description": "Define TypeScript interfaces for validation results, create structured error/warning/info categories, and implement compliance scoring system",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 4,
+            "title": "Update RSSFeedChecker Component",
+            "description": "Replace raw JSON display with structured validation results, add loading states and error handling, implement progressive disclosure of results",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 5,
+            "title": "Create ValidationResults Component",
+            "description": "Create src/components/ValidationResults.tsx to display structured validation results with compliance scores and categorized issues",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Improve User Interface and User Experience",
+        "description": "Redesign and enhance the user interface to provide a modern, responsive, and user-friendly experience for RSS feed validation.",
+        "priority": "high",
+        "estimatedTime": "6-8 hours",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "file": "002_improve_user_interface.md",
+        "requirements": [
+          "FR5.1: Clean, modern, responsive design",
+          "FR5.2: Real-time validation feedback",
+          "FR5.3: Collapsible sections for detailed results",
+          "FR5.4: Dark/light theme toggle",
+          "FR5.5: Mobile-friendly interface",
+          "UX1.1: WCAG 2.1 AA compliance",
+          "UX1.2: Keyboard navigation support",
+          "UX1.3: Screen reader compatibility",
+          "UX2.1: Intuitive interface requiring minimal learning",
+          "UX2.2: Clear error messages and guidance"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Implement CORS Proxy and Feed Access",
+        "description": "Implement a CORS proxy solution to handle cross-origin requests for RSS feeds that don't have proper CORS headers.",
+        "priority": "medium",
+        "estimatedTime": "3-4 hours",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "file": "003_implement_cors_proxy.md",
+        "requirements": [
+          "FR1.4: Handle CORS issues with proxy support",
+          "SR1.2: Implement proper CORS handling",
+          "TR1.1: Load and parse feeds within 5 seconds"
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Add Episode Playback and Value Block Validation",
+        "description": "Add functionality to view what was played on each episode and validate Value Blocks for Podcasting 2.0 value4value features.",
+        "priority": "high",
+        "estimatedTime": "6-8 hours",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "file": "004_episode_playback_value_blocks.md",
+        "requirements": [
+          "Episode playback information display showing audio content details",
+          "Value Block validation for Podcasting 2.0 value4value features",
+          "Check for valid Value Block structure and content",
+          "Display episode-specific playback statistics",
+          "Validate Value Block recipients and amounts",
+          "Show episode duration and content type information",
+          "Check for proper Value Block formatting and compliance with Podcasting 2.0 spec"
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Add Chapter Overlap Validation",
+        "description": "Add functionality to check that podcast chapters don't overlap and are properly timed.",
+        "priority": "medium",
+        "estimatedTime": "4-6 hours",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "file": "005_chapter_overlap_validation.md",
+        "requirements": [
+          "Parse and validate podcast chapter timestamps",
+          "Check for overlapping chapter time ranges",
+          "Validate chapter start and end times",
+          "Detect gaps between chapters",
+          "Verify chapter time format compliance",
+          "Show chapter timeline visualization",
+          "Provide warnings for overlapping or malformed chapters",
+          "Validate chapter titles and descriptions"
+        ]
+      }
+    ],
+    "metadata": {
+      "projectName": "duhlaurien-hand-hacked-rss-checker",
+      "totalTasks": 5,
+      "highPriority": 2,
+      "mediumPriority": 2,
+      "lowPriority": 0,
+      "readyToStart": 2,
+      "blocked": 0,
+      "lastUpdated": "2025-01-27",
+      "created": "2025-07-25T11:42:59.146Z",
+      "description": "Tasks for master context",
+      "updated": "2025-07-25T12:17:39.782Z"
+    }
+  }
+}

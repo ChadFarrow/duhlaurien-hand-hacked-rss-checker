@@ -1,0 +1,92 @@
+# Example PRD Template
+
+## Project Overview
+
+### Product Name
+[Your Product Name]
+
+### Product Description
+[Brief description of what your product does]
+
+### Target Audience
+- [Primary user group 1]
+- [Primary user group 2]
+- [Secondary user group]
+
+### Business Goals
+1. [Primary business objective]
+2. [Secondary business objective]
+3. [Tertiary business objective]
+
+## Functional Requirements
+
+### Core Features
+
+#### 1. [Feature Category 1]
+- **FR1.1**: [Specific requirement]
+- **FR1.2**: [Specific requirement]
+- **FR1.3**: [Specific requirement]
+
+#### 2. [Feature Category 2]
+- **FR2.1**: [Specific requirement]
+- **FR2.2**: [Specific requirement]
+
+### Advanced Features
+
+#### 3. [Advanced Feature Category]
+- **FR3.1**: [Specific requirement]
+- **FR3.2**: [Specific requirement]
+
+## Technical Requirements
+
+### Technology Stack
+- **Frontend**: [Framework/Library]
+- **Backend**: [Framework/Language]
+- **Database**: [Database type]
+- **Deployment**: [Platform]
+
+### Performance Requirements
+- **TR1.1**: [Performance metric]
+- **TR1.2**: [Performance metric]
+
+### Security Requirements
+- **SR1.1**: [Security requirement]
+- **SR1.2**: [Security requirement]
+
+## User Experience Requirements
+
+### Accessibility
+- **UX1.1**: [Accessibility requirement]
+- **UX1.2**: [Accessibility requirement]
+
+### Usability
+- **UX2.1**: [Usability requirement]
+- **UX2.2**: [Usability requirement]
+
+## Success Metrics
+
+### Key Performance Indicators
+- **KPI1**: [Metric with target]
+- **KPI2**: [Metric with target]
+
+## Constraints and Assumptions
+
+### Constraints
+- **C1**: [Technical or business constraint]
+- **C2**: [Technical or business constraint]
+
+### Assumptions
+- **A1**: [Assumption about users/environment]
+- **A2**: [Assumption about technology]
+
+## Acceptance Criteria
+
+### MVP Acceptance Criteria
+1. [Criterion 1]
+2. [Criterion 2]
+3. [Criterion 3]
+
+### Release Criteria
+1. [Criterion 1]
+2. [Criterion 2]
+3. [Criterion 3] 
