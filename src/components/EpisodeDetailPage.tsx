@@ -453,122 +453,145 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
 
                   return (
                     <div key={index} className="chapter-item">
-                      <div className="chapter-content">
-                        <div className="chapter-header">
-                          <div className="chapter-title">{chapter.title}</div>
-                          <div className="chapter-time">
+                      <div className="chapter-header-section">
+                        <h1 className="chapter-title-main">{chapter.title}</h1>
+                        <div className="chapter-meta-info">
+                          {chapter.url && (
+                            <a href={chapter.url} target="_blank" rel="noopener noreferrer" className="link">
+                              🔗 Link
+                            </a>
+                          )}
+                          <span className="chapter-time-range">
                             {startTime}{endTime && ` - ${endTime}`}
-                          </div>
+                          </span>
+                          {matchingSplits.length > 0 && matchingSplits.map((split, splitIndex) => (
+                            <span key={splitIndex} className="chapter-remote-badge">
+                              ⚡ {valueTimeSplitService.formatValueTimeSplit(split)}
+                            </span>
+                          ))}
                         </div>
-                        {matchingSplits.length > 0 && (
-                          <div className="value-time-splits">
-                            {matchingSplits.map((split, splitIndex) => {
+                      </div>
+                      
+                      <div className="chapter-content">
+                        <div className="chapter-artwork-container">
+                          {chapter.img ? (
+                            <img src={chapter.img} alt={chapter.title} className="chapter-artwork" />
+                          ) : (
+                            <div className="chapter-artwork" style={{background: '#8B0000'}}></div>
+                          )}
+                        </div>
+                        
+                        <div className="chapter-payment-splits">
+                          {matchingSplits.length > 0 ? (
+                            matchingSplits.map((split, splitIndex) => {
                               // Get the episode's main value recipients
                               const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
                               const hostPercentage = 100 - split.remotePercentage;
+                              const remoteValueBlock = remoteValueRecipients.get(split.remoteItem?.feedGuid || '');
+                              const podcastTitle = podcastNames.get(split.remoteItem?.feedGuid || '') || 'Remote Podcast';
                               
                               return (
-                                <div key={splitIndex} className="value-time-split-expanded">
-                                  <div className="value-split-header">
-                                    <span className="value-split-icon">⚡</span>
-                                    <span className="value-split-info">
-                                      {valueTimeSplitService.formatValueTimeSplit(split)}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="value-split-breakdown">
-                                    {/* Remote recipients from actual feed */}
-                                    {split.remoteItem && (() => {
-                                      const remoteValueBlock = remoteValueRecipients.get(split.remoteItem.feedGuid);
-                                      const podcastTitle = podcastNames.get(split.remoteItem.feedGuid) || 'Remote Podcast';
-                                      
-                                      if (remoteValueBlock && remoteValueBlock.recipients.length > 0) {
-                                        return (
-                                          <>
-                                            <div className="split-divider">
-                                              <span>{podcastTitle} ({split.remotePercentage}%):</span>
+                                <div key={splitIndex}>
+                                  {/* Remote Recipients Section */}
+                                  {split.remoteItem && remoteValueBlock && remoteValueBlock.recipients.length > 0 && (
+                                    <div className="splits-section">
+                                      <h2 className="section-title">
+                                        {podcastTitle}
+                                        <span className="percentage-badge">{split.remotePercentage}%</span>
+                                      </h2>
+                                      {remoteValueBlock.recipients
+                                        .sort((a, b) => b.split - a.split)
+                                        .map((recipient, idx) => (
+                                          <a
+                                            key={idx}
+                                            className="split-item"
+                                            href={`https://amboss.space/node/${recipient.address}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{textDecoration: 'none', color: 'inherit'}}
+                                          >
+                                            <span className="split-name">{recipient.name}:</span>
+                                            <div className="split-percentage">
+                                              <span className="main-percentage">
+                                                {(split.remotePercentage * recipient.split / 100).toFixed(2)}%
+                                              </span>
+                                              <span className="sub-percentage">
+                                                ({recipient.split}% of {split.remotePercentage}%)
+                                              </span>
                                             </div>
-                                            {remoteValueBlock.recipients
-                                              .sort((a, b) => b.split - a.split) // Sort largest to smallest
-                                              .map((recipient, idx) => (
-                                              <a
-                                                key={idx}
-                                                className="split-recipient remote recipient-link"
-                                                href={`https://amboss.space/node/${recipient.address}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                              >
-                                                <span className="recipient-label">{recipient.name}:</span>
-                                                <span className="recipient-percent">
-                                                  {(split.remotePercentage * recipient.split / 100).toFixed(2)}%
-                                                </span>
-                                                <span className="recipient-details">
-                                                  ({recipient.split}% of {split.remotePercentage}%)
-                                                </span>
-                                              </a>
-                                            ))}
-                                          </>
-                                        );
-                                      } else {
-                                        // Fallback to simple remote display
-                                        return (
-                                          <div className="split-recipient remote">
-                                            <span className="recipient-label">{podcastTitle}:</span>
-                                            <span className="recipient-percent">{split.remotePercentage}%</span>
-                                            <span className="recipient-details">
-                                              (Value recipients not available)
-                                            </span>
-                                          </div>
-                                        );
-                                      }
-                                    })()}
-                                    
-                                    {/* Direct recipients in time split */}
-                                    {split.valueRecipients && split.valueRecipients.map((recipient, idx) => (
-                                      <div key={idx} className="split-recipient direct">
-                                        <span className="recipient-label">{recipient.name}:</span>
-                                        <span className="recipient-percent">{recipient.split}%</span>
-                                      </div>
-                                    ))}
-                                    
-                                    {/* Host recipients (remaining percentage) */}
-                                    {split.remoteItem && mainValueBlock && mainValueBlock.recipients.length > 0 && (
-                                      <>
-                                        <div className="split-divider">
-                                          <span>Hosts ({hostPercentage}%):</span>
-                                        </div>
-                                        {mainValueBlock.recipients
-                                          .sort((a, b) => b.split - a.split) // Sort largest to smallest
-                                          .map((recipient, idx) => (
-                                          <div key={idx} className="split-recipient host">
-                                            <span className="recipient-label">{recipient.name}:</span>
-                                            <span className="recipient-percent">
-                                              {(hostPercentage * recipient.split / 100).toFixed(2)}%
-                                            </span>
-                                            <span className="recipient-details">
-                                              ({recipient.split}% of {hostPercentage}%)
-                                            </span>
-                                          </div>
+                                          </a>
                                         ))}
-                                      </>
-                                    )}
-                                  </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Hosts Section */}
+                                  {mainValueBlock && mainValueBlock.recipients.length > 0 && (
+                                    <div className="splits-section hosts-section">
+                                      <h2 className="section-title">
+                                        Hosts
+                                        <span className="percentage-badge">{hostPercentage}%</span>
+                                      </h2>
+                                      {mainValueBlock.recipients
+                                        .sort((a, b) => b.split - a.split)
+                                        .map((recipient, idx) => (
+                                          <a
+                                            key={idx}
+                                            className="split-item"
+                                            href={`https://amboss.space/node/${recipient.address}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{textDecoration: 'none', color: 'inherit'}}
+                                          >
+                                            <span className="split-name">{recipient.name}:</span>
+                                            <div className="split-percentage">
+                                              <span className="main-percentage">
+                                                {(hostPercentage * recipient.split / 100).toFixed(2)}%
+                                              </span>
+                                              <span className="sub-percentage">
+                                                ({recipient.split}% of {hostPercentage}%)
+                                              </span>
+                                            </div>
+                                          </a>
+                                        ))}
+                                    </div>
+                                  )}
                                 </div>
                               );
-                            })}
-                          </div>
-                        )}
-
-                        {chapter.url && (
-                          <a href={chapter.url} target="_blank" rel="noopener noreferrer" className="chapter-link">
-                            🔗 Link
-                          </a>
-                        )}
-                      </div>
-                      <div className="chapter-media">
-                        {chapter.img && (
-                          <img src={chapter.img} alt={chapter.title} className="chapter-image" />
-                        )}
+                            })
+                          ) : (
+                            // Show default hosts for chapters without value time splits
+                            (() => {
+                              const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
+                              return mainValueBlock && mainValueBlock.recipients.length > 0 ? (
+                                <div className="splits-section hosts-section">
+                                  <h2 className="section-title">
+                                    Hosts
+                                    <span className="percentage-badge">100%</span>
+                                  </h2>
+                                  {mainValueBlock.recipients
+                                    .sort((a, b) => b.split - a.split)
+                                    .map((recipient, idx) => (
+                                      <a
+                                        key={idx}
+                                        className="split-item"
+                                        href={`https://amboss.space/node/${recipient.address}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{textDecoration: 'none', color: 'inherit'}}
+                                      >
+                                        <span className="split-name">{recipient.name}:</span>
+                                        <div className="split-percentage">
+                                          <span className="main-percentage">
+                                            {recipient.split.toFixed(2)}%
+                                          </span>
+                                        </div>
+                                      </a>
+                                    ))}
+                                </div>
+                              ) : null;
+                            })()
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

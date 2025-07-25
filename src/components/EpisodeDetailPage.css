@@ -217,68 +217,101 @@
 }
 
 .chapter-item {
-  display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
-  align-items: flex-start;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.8);
 }
 
 .chapter-item:hover {
-  background: #e9ecef;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.chapter-header-section {
+  padding: 8px 14px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .chapter-content {
-  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 0;
+  align-items: flex-start;
 }
 
-.chapter-header {
+.chapter-artwork-container {
+  flex: 0 0 30%;
+  padding: 6px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  align-self: flex-start;
+  min-height: 80px;
 }
 
-.chapter-title {
+.chapter-artwork {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.chapter-payment-splits {
+  flex: 0 0 70%;
+  padding: 12px;
+  background: #f8f9fa;
+  border-left: 1px solid #eee;
+}
+
+.chapter-title-main {
+  font-size: 16px;
   font-weight: 600;
   color: #333;
-  font-size: 1rem;
-  line-height: 1.4;
-  flex: 1;
+  margin: 0;
 }
 
-.chapter-time {
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  color: #0c96ad;
-  font-size: 0.9rem;
-  background: rgba(12, 150, 173, 0.1);
-  padding: 0.25rem 0.5rem;
+.chapter-meta-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chapter-time-range {
+  background: #e8f4fd;
+  color: #0066cc;
+  padding: 3px 6px;
   border-radius: 4px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.chapter-remote-badge {
+  background: #fff3cd;
+  color: #856404;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .chapter-media {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .chapter-image {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
   border-radius: 8px;
   flex-shrink: 0;
@@ -369,26 +402,94 @@
   flex-shrink: 0;
 }
 
-/* Value Time Split Styles */
+/* Payment Splits Styles */
+.splits-section {
+  margin-bottom: 10px;
+}
+
+.splits-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.percentage-badge {
+  background: #007bff;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.hosts-section .section-title .percentage-badge {
+  background: #28a745;
+}
+
+.split-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.split-item:last-child {
+  border-bottom: none;
+}
+
+.split-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.split-percentage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-percentage {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.hosts-section .split-item .main-percentage {
+  color: #28a745;
+}
+
+.sub-percentage {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Value Time Split Styles - Legacy */
 .value-time-splits {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.25rem;
 }
 
 .value-time-split-expanded {
   background: rgba(12, 150, 173, 0.05);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid rgba(12, 150, 173, 0.2);
-  padding: 0.75rem;
+  padding: 0.5rem;
 }
 
 .value-split-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .value-split-icon {
@@ -399,22 +500,22 @@
 .value-split-info {
   color: #0c96ad;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .value-split-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.85rem;
+  gap: 0.125rem;
+  font-size: 0.8rem;
 }
 
 .split-recipient {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
 }
 
 .split-recipient.remote {
@@ -427,25 +528,30 @@
 
 .split-recipient.host {
   background: rgba(248, 249, 250, 0.8);
-  margin-left: 1rem;
+  margin-left: 0.75rem;
 }
 
 .recipient-label {
   font-weight: 500;
   color: #495057;
-  min-width: 120px;
+  min-width: 70px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
 }
 
 .recipient-percent {
   font-weight: 700;
   color: #0c96ad;
-  min-width: 60px;
+  min-width: 45px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
 }
 
 .recipient-details {
   color: #6c757d;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   flex: 1;
+  margin-left: 0.25rem;
 }
 
 .recipient-details div {
@@ -482,11 +588,11 @@
 }
 
 .split-divider {
-  margin: 0.5rem 0 0.25rem;
-  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 0 0.125rem;
+  padding: 0.15rem 0.4rem;
   font-weight: 600;
   color: #333;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   border-top: 1px solid rgba(12, 150, 173, 0.2);
 }
 
@@ -645,21 +751,26 @@
     justify-content: center;
   }
   
-  .chapter-item {
+  .chapter-content {
     flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
   }
   
-  .chapter-time {
-    min-width: auto;
-    align-self: stretch;
-    text-align: center;
+  .chapter-artwork-container {
+    min-height: 200px;
   }
   
-  .chapter-media {
-    align-self: center;
-    order: -1;
+  .chapter-payment-splits {
+    border-left: none;
+    border-top: 1px solid #eee;
+  }
+  
+  .chapter-header-section {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .chapter-title-main {
+    font-size: 20px;
   }
   
   .track-item {

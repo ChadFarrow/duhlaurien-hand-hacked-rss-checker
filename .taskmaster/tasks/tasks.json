@@ -121,7 +121,7 @@
           "Episode list display with titles and metadata",
           "Episode detail pages with full information",
           "Navigation between episodes and back to list",
-          "Display episode duration and publication date", 
+          "Display episode duration and publication date",
           "Show episode descriptions and content",
           "Audio file download/play links",
           "Chapter support and display"
@@ -155,7 +155,8 @@
         "priority": "high",
         "estimatedTime": "2-3 hours",
         "dependencies": [
-          4, 5
+          4,
+          5
         ],
         "status": "done",
         "file": "006_episode_routing.md",
@@ -176,7 +177,7 @@
         "dependencies": [
           4
         ],
-        "status": "done", 
+        "status": "done",
         "file": "007_chapter_support.md",
         "requirements": [
           "Parse podcast:chapters from RSS feed",
@@ -195,7 +196,9 @@
         "priority": "high",
         "estimatedTime": "4-6 hours",
         "dependencies": [
-          5, 6, 7
+          5,
+          6,
+          7
         ],
         "status": "done",
         "file": "008_ui_polish.md",
@@ -208,26 +211,6 @@
           "Center metadata items in episode detail pages",
           "Fix text color consistency for proper contrast",
           "Lock in final styling with git commits"
-        ]
-      },
-      {
-        "id": 9,
-        "title": "Remove Value Recipient Functionality",
-        "description": "Remove Podcasting 2.0 value recipient functionality to simplify the application and eliminate 401 API errors from Podcast Index service.",
-        "priority": "high",
-        "estimatedTime": "2-3 hours",
-        "dependencies": [],
-        "status": "pending",
-        "file": "009_remove_value_recipients.md",
-        "requirements": [
-          "Remove Podcast Index API service calls",
-          "Remove value time split functionality",
-          "Remove value recipient display from chapters",
-          "Clean up unused imports and state variables",
-          "Eliminate 401 authentication errors",
-          "Simplify episode detail page",
-          "Maintain core RSS parsing and episode display",
-          "Keep chapter support and basic podcast features"
         ]
       },
       {
@@ -261,7 +244,7 @@
         "priority": "high",
         "estimatedTime": "2-3 hours",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "file": "011_fix_podcast_index_api.md",
         "requirements": [
           "Obtain valid Podcast Index API credentials",
@@ -285,7 +268,7 @@
         "priority": "critical",
         "estimatedTime": "1-2 hours",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "file": "012_fix_localhost_loading.md",
         "requirements": [
           "Check if React development server is running",
@@ -318,7 +301,7 @@
       "lastUpdated": "2025-07-25",
       "created": "2025-07-25T11:42:59.146Z",
       "description": "Tasks for podcast episode viewer application",
-      "updated": "2025-07-25T17:45:00.000Z"
+      "updated": "2025-07-25T21:44:18.118Z"
     }
   }
 }

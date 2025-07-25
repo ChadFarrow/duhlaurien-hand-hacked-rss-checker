@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Add Chapter Support and Display
+# Status: done
+# Dependencies: 4
+# Priority: medium
+# Description: Add functionality to display podcast chapters with timestamps and navigation.
+# Details:
+
+
+# Test Strategy:
+
