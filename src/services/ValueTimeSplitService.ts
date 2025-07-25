@@ -4,10 +4,19 @@ export interface ValueTimeSplit {
   startTime: number;
   remotePercentage: number;
   duration: number;
-  remoteItem: {
+  remoteItem?: {
     feedGuid: string;
     itemGuid?: string;
   };
+  valueRecipients?: Array<{
+    name: string;
+    type: string;
+    address: string;
+    split: number;
+    fee?: boolean;
+    customKey?: string;
+    customValue?: string;
+  }>;
 }
 
 export interface ChapterWithValue {
@@ -47,8 +56,8 @@ class ValueTimeSplitService {
         console.log(`Split has @_startTime:`, !!split['@_startTime']);
         console.log(`Split has podcast:remoteItem:`, !!split['podcast:remoteItem']);
         
-        if (!split || !split['podcast:remoteItem']) {
-          console.log(`Split ${index} filtered out - missing required properties`);
+        if (!split) {
+          console.log(`Split ${index} filtered out - null or undefined`);
           return null;
         }
         
@@ -56,12 +65,34 @@ class ValueTimeSplitService {
           const result: ValueTimeSplit = {
             startTime: parseFloat(split['@_startTime'] || '0'),
             remotePercentage: parseFloat(split['@_remotePercentage'] || '0'),
-            duration: parseFloat(split['@_duration'] || '0'),
-            remoteItem: {
+            duration: parseFloat(split['@_duration'] || '0')
+          };
+          
+          // Handle remoteItem if present
+          if (split['podcast:remoteItem']) {
+            result.remoteItem = {
               feedGuid: split['podcast:remoteItem']['@_feedGuid'] || '',
               itemGuid: split['podcast:remoteItem']['@_itemGuid']
-            }
-          };
+            };
+          }
+          
+          // Handle direct value recipients if present
+          if (split['podcast:valueRecipient']) {
+            const recipients = Array.isArray(split['podcast:valueRecipient']) 
+              ? split['podcast:valueRecipient'] 
+              : [split['podcast:valueRecipient']];
+              
+            result.valueRecipients = recipients.map((recipient: any) => ({
+              name: recipient['@_name'] || recipient.$?.name || '',
+              type: recipient['@_type'] || recipient.$?.type || 'node',
+              address: recipient['@_address'] || recipient.$?.address || '',
+              split: parseFloat(recipient['@_split'] || recipient.$?.split || '0'),
+              fee: recipient['@_fee'] === 'true' || recipient.$?.fee === 'true',
+              customKey: recipient['@_customKey'] || recipient.$?.customKey,
+              customValue: recipient['@_customValue'] || recipient.$?.customValue
+            }));
+          }
+          
           console.log(`Successfully parsed split ${index}:`, result);
           return result;
         } catch (error) {
@@ -108,6 +139,11 @@ class ValueTimeSplitService {
     const startTime = this.formatTime(split.startTime);
     const endTime = this.formatTime(split.startTime + split.duration);
     const percentage = split.remotePercentage;
+    
+    if (split.valueRecipients && split.valueRecipients.length > 0) {
+      const recipientNames = split.valueRecipients.map(r => r.name).join(', ');
+      return `${startTime} - ${endTime} (${percentage}% to ${recipientNames})`;
+    }
     
     return `${startTime} - ${endTime} (${percentage}% remote)`;
   }

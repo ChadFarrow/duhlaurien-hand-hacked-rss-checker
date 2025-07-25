@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { RSSItem, AtomEntry } from '../types/feed';
 import { chapterService, ChaptersData } from '../services/ChapterService';
 import { valueTimeSplitService, ValueTimeSplit } from '../services/ValueTimeSplitService';
+import { valueRecipientService } from '../services/ValueRecipientService';
 import './EpisodeDetailPage.css';
 
 interface EpisodeDetailPageProps {
@@ -244,6 +245,39 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
           )}
         </div>
 
+        {/* Value Recipients Section */}
+        {feedType === 'rss' && valueRecipientService.hasValueRecipients(episode as RSSItem) && (
+          <div className="episode-section">
+            <h2>Value Recipients</h2>
+            {(() => {
+              const valueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
+              if (!valueBlock || valueBlock.recipients.length === 0) return null;
+              
+              return (
+                <div className="value-recipients-list">
+                  <div className="value-block-info">
+                    <span className="value-type">💰 {valueBlock.type} via {valueBlock.method}</span>
+                    {valueBlock.suggested && (
+                      <span className="suggested-amount">Suggested: {valueBlock.suggested} sats</span>
+                    )}
+                  </div>
+                  <div className="recipients-grid">
+                    {valueBlock.recipients.map((recipient, index) => (
+                      <div key={index} className="recipient-item">
+                        <div className="recipient-name">{recipient.name}</div>
+                        <div className="recipient-split">{recipient.split}%</div>
+                        <div className="recipient-address" title={recipient.address}>
+                          {recipient.address.slice(0, 8)}...{recipient.address.slice(-8)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
         <div className="episode-description">
           <h2>Description</h2>
           <div 
@@ -343,11 +377,11 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                   // Find all splits that fall within this chapter's time range
                   const chapterEndTime = index < chapters.chapters.length - 1 ? 
                     chapters.chapters[index + 1].startTime : 
-                    chapter.startTime + 300; // 5 minutes default for last chapter
+                    Infinity; // For last chapter, include all remaining splits
                   
                   const matchingSplits = valueTimeSplits.filter(split => {
-                    const splitEndTime = split.startTime + split.duration;
-                    return split.startTime < chapterEndTime && splitEndTime > chapter.startTime;
+                    // Check if split starts within this chapter's range
+                    return split.startTime >= chapter.startTime && split.startTime < chapterEndTime;
                   });
 
                   return (
@@ -365,9 +399,16 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                 <span className="value-split-info">
                                   {valueTimeSplitService.formatValueTimeSplit(split)}
                                 </span>
-                                <span className="value-split-guid">
-                                  Feed: {split.remoteItem.feedGuid.slice(0, 8)}...
-                                </span>
+                                {split.remoteItem && (
+                                  <span className="value-split-guid">
+                                    Feed: {split.remoteItem.feedGuid.slice(0, 8)}...
+                                  </span>
+                                )}
+                                {split.valueRecipients && split.valueRecipients.length > 0 && (
+                                  <span className="value-split-recipients">
+                                    {split.valueRecipients.map(r => `${r.name} (${r.split}%)`).join(', ')}
+                                  </span>
+                                )}
                               </div>
                             ))}
                           </div>
