@@ -21,27 +21,35 @@ interface EpisodeData {
 
 const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
   const [episodeData, setEpisodeData] = useState<EpisodeData[]>(() => {
-    return episodes.map((episode, index) => ({
-      id: feedType === 'rss' 
-        ? (episode as RSSItem).guid?._ || `episode-${index}`
-        : (episode as AtomEntry).id || `episode-${index}`,
-      title: feedType === 'rss' 
+    return episodes.map((episode, index) => {
+      const title = feedType === 'rss' 
         ? (episode as RSSItem).title 
-        : (episode as AtomEntry).title,
-      description: feedType === 'rss' 
-        ? (episode as RSSItem).description 
-        : (episode as AtomEntry).summary || (episode as AtomEntry).content || '',
-      pubDate: feedType === 'rss' 
-        ? (episode as RSSItem).pubDate 
-        : (episode as AtomEntry).published || (episode as AtomEntry).updated,
-      duration: feedType === 'rss' 
-        ? (episode as RSSItem)['itunes:duration'] 
-        : undefined,
-      enclosureUrl: feedType === 'rss' 
-        ? (episode as RSSItem).enclosure?.url 
-        : undefined,
-      rawEpisode: episode
-    }));
+        : (episode as AtomEntry).title;
+      
+      // Extract episode number from title like "Homegrown Hits - Episode 95"
+      const episodeNumberMatch = title.match(/Episode\s+(\d+)/i);
+      const episodeNumber = episodeNumberMatch ? episodeNumberMatch[1] : (index + 1).toString();
+      
+      return {
+        id: feedType === 'rss' 
+          ? (episode as RSSItem).guid?._ || `episode-${episodeNumber}`
+          : (episode as AtomEntry).id || `episode-${episodeNumber}`,
+        title: title,
+        description: feedType === 'rss' 
+          ? (episode as RSSItem).description 
+          : (episode as AtomEntry).summary || (episode as AtomEntry).content || '',
+        pubDate: feedType === 'rss' 
+          ? (episode as RSSItem).pubDate 
+          : (episode as AtomEntry).published || (episode as AtomEntry).updated,
+        duration: feedType === 'rss' 
+          ? (episode as RSSItem)['itunes:duration'] 
+          : undefined,
+        enclosureUrl: feedType === 'rss' 
+          ? (episode as RSSItem).enclosure?.url 
+          : undefined,
+        rawEpisode: episode
+      };
+    });
   });
 
 

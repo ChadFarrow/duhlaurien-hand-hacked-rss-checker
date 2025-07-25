@@ -21,13 +21,19 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
   if (feedType === 'rss') {
     const rssEpisodes = episodes as RSSItem[];
     episode = rssEpisodes.find((ep, index) => {
-      const id = ep.guid?._ || `episode-${index}`;
+      // Extract episode number from title like "Homegrown Hits - Episode 95"
+      const episodeNumberMatch = ep.title.match(/Episode\s+(\d+)/i);
+      const episodeNumber = episodeNumberMatch ? episodeNumberMatch[1] : (index + 1).toString();
+      const id = ep.guid?._ || `episode-${episodeNumber}`;
       return id === episodeId;
     });
   } else {
     const atomEpisodes = episodes as AtomEntry[];
     episode = atomEpisodes.find((ep, index) => {
-      const id = ep.id || `episode-${index}`;
+      // Extract episode number from title like "Homegrown Hits - Episode 95"
+      const episodeNumberMatch = ep.title.match(/Episode\s+(\d+)/i);
+      const episodeNumber = episodeNumberMatch ? episodeNumberMatch[1] : (index + 1).toString();
+      const id = ep.id || `episode-${episodeNumber}`;
       return id === episodeId;
     });
   }
