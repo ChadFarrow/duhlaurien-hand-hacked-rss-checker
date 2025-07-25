@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { RSSItem, AtomEntry } from '../types/feed';
 import { chapterService, ChaptersData } from '../services/ChapterService';
-import { valueTimeSplitService, ValueTimeSplit } from '../services/ValueTimeSplitService';
-import { valueRecipientService } from '../services/ValueRecipientService';
+import { valueTimeSplitService } from '../services/ValueTimeSplitService';
+import { valueRecipientService, ValueBlock } from '../services/ValueRecipientService';
 import { podcastIndexService } from '../services/PodcastIndexService';
+import { remoteFeedService } from '../services/RemoteFeedService';
 import './EpisodeDetailPage.css';
 
 interface EpisodeDetailPageProps {
@@ -19,6 +20,7 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
   const [loadingChapters, setLoadingChapters] = useState(false);
   const [podcastNames, setPodcastNames] = useState<Map<string, string>>(new Map());
   const [episodeInfo, setEpisodeInfo] = useState<Map<string, {title: string, podcastTitle: string}>>(new Map());
+  const [remoteValueRecipients, setRemoteValueRecipients] = useState<Map<string, ValueBlock | null>>(new Map());
 
   // Find the episode by ID
   let episode: RSSItem | AtomEntry | undefined;
@@ -105,6 +107,12 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
           // Skip episode information fetching while API is unavailable
           // This will be re-enabled once the Podcast Index API is stable
           setEpisodeInfo(new Map());
+
+          // Fetch remote feed value recipients
+          if (feedGuids.length > 0) {
+            const remoteValueMap = await remoteFeedService.getMultipleRemoteFeedValueRecipients(feedGuids);
+            setRemoteValueRecipients(remoteValueMap);
+          }
         } catch (error) {
           console.error('Error fetching remote info:', error);
         }
@@ -313,7 +321,9 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                     )}
                   </div>
                   <div className="recipients-grid">
-                    {valueBlock.recipients.map((recipient, index) => (
+                    {valueBlock.recipients
+                      .sort((a, b) => b.split - a.split) // Sort largest to smallest
+                      .map((recipient, index) => (
                       <a 
                         key={index} 
                         className="recipient-item recipient-link"
@@ -467,42 +477,51 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                   </div>
                                   
                                   <div className="value-split-breakdown">
-                                    {/* Remote recipient */}
-                                    {split.remoteItem && (
-                                      <div className="split-recipient remote">
-                                        <span className="recipient-label">
-                                          {podcastNames.get(split.remoteItem.feedGuid) || 'Remote'}:
-                                        </span>
-                                        <span className="recipient-percent">{split.remotePercentage}%</span>
-                                        <span className="recipient-details">
-                                          {(() => {
-                                            const episodeKey = split.remoteItem.itemGuid ? 
-                                              `${split.remoteItem.feedGuid}:${split.remoteItem.itemGuid}` : null;
-                                            const remoteEpisodeInfo = episodeKey ? episodeInfo.get(episodeKey) : null;
-                                            
-                                            
-                                            if (remoteEpisodeInfo) {
-                                              return (
-                                                <div className="remote-episode-info">
-                                                  <div className="episode-title">{remoteEpisodeInfo.title}</div>
-                                                  <div className="podcast-title">from {remoteEpisodeInfo.podcastTitle}</div>
-                                                </div>
-                                              );
-                                            } else if (!podcastNames.get(split.remoteItem.feedGuid)) {
-                                              return (
-                                                <>
-                                                  <div>Feed: {split.remoteItem.feedGuid}</div>
-                                                  {split.remoteItem.itemGuid && (
-                                                    <div>Item: {split.remoteItem.itemGuid}</div>
-                                                  )}
-                                                </>
-                                              );
-                                            }
-                                            return null;
-                                          })()}
-                                        </span>
-                                      </div>
-                                    )}
+                                    {/* Remote recipients from actual feed */}
+                                    {split.remoteItem && (() => {
+                                      const remoteValueBlock = remoteValueRecipients.get(split.remoteItem.feedGuid);
+                                      const podcastTitle = podcastNames.get(split.remoteItem.feedGuid) || 'Remote Podcast';
+                                      
+                                      if (remoteValueBlock && remoteValueBlock.recipients.length > 0) {
+                                        return (
+                                          <>
+                                            <div className="split-divider">
+                                              <span>{podcastTitle} ({split.remotePercentage}%):</span>
+                                            </div>
+                                            {remoteValueBlock.recipients
+                                              .sort((a, b) => b.split - a.split) // Sort largest to smallest
+                                              .map((recipient, idx) => (
+                                              <a
+                                                key={idx}
+                                                className="split-recipient remote recipient-link"
+                                                href={`https://amboss.space/node/${recipient.address}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                              >
+                                                <span className="recipient-label">{recipient.name}:</span>
+                                                <span className="recipient-percent">
+                                                  {(split.remotePercentage * recipient.split / 100).toFixed(2)}%
+                                                </span>
+                                                <span className="recipient-details">
+                                                  ({recipient.split}% of {split.remotePercentage}%)
+                                                </span>
+                                              </a>
+                                            ))}
+                                          </>
+                                        );
+                                      } else {
+                                        // Fallback to simple remote display
+                                        return (
+                                          <div className="split-recipient remote">
+                                            <span className="recipient-label">{podcastTitle}:</span>
+                                            <span className="recipient-percent">{split.remotePercentage}%</span>
+                                            <span className="recipient-details">
+                                              (Value recipients not available)
+                                            </span>
+                                          </div>
+                                        );
+                                      }
+                                    })()}
                                     
                                     {/* Direct recipients in time split */}
                                     {split.valueRecipients && split.valueRecipients.map((recipient, idx) => (
@@ -518,7 +537,9 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                         <div className="split-divider">
                                           <span>Hosts ({hostPercentage}%):</span>
                                         </div>
-                                        {mainValueBlock.recipients.map((recipient, idx) => (
+                                        {mainValueBlock.recipients
+                                          .sort((a, b) => b.split - a.split) // Sort largest to smallest
+                                          .map((recipient, idx) => (
                                           <div key={idx} className="split-recipient host">
                                             <span className="recipient-label">{recipient.name}:</span>
                                             <span className="recipient-percent">
