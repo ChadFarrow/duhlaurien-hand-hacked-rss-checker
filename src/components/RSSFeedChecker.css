@@ -38,11 +38,11 @@ body {
 .header {
   text-align: center;
   margin-bottom: 3rem;
-  background: rgba(210, 203, 240, 0.1);
+  background: rgba(210, 203, 240, 0.25);
   border-radius: 20px;
   padding: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(210, 203, 240, 0.2);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(210, 203, 240, 0.4);
 }
 
 .title {
@@ -62,12 +62,13 @@ body {
 }
 
 .controls {
-  background: rgba(94, 97, 143, 0.2);
+  background: rgba(94, 97, 143, 0.25);
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 2rem;
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(156, 194, 209, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(94, 97, 143, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .radio-group {
@@ -209,11 +210,12 @@ body {
 }
 
 .episodes {
-  background: rgba(55, 27, 83, 0.3);
+  background: rgba(55, 27, 83, 0.25);
   border-radius: 16px;
   padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(150, 136, 183, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(55, 27, 83, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

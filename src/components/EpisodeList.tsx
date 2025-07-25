@@ -94,7 +94,7 @@ const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
         <Link
           key={episode.id}
           to={`/episode/${encodeURIComponent(episode.id)}`}
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          className="episode-link"
         >
           <div className="episode-item">
             <div className="episode-title">{episode.title}</div>
