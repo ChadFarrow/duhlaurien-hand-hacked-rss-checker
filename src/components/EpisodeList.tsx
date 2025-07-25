@@ -84,35 +84,34 @@ const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
 
 
   return (
-    <div className="episode-list">
-      <div className="episode-list-header">
-        <h3>📻 Episodes ({episodes.length})</h3>
+    <>
+      <div className="episodes-header">
+        <div className="episodes-icon">📻</div>
+        <span>Episodes ({episodes.length})</span>
       </div>
 
-      <div className="episodes-container">
-        {episodeData.map((episode) => (
-          <Link
-            key={episode.id}
-            to={`/episode/${encodeURIComponent(episode.id)}`}
-            className="episode-item-link"
-          >
-            <div className="episode-item">
-              <div className="episode-header-single-line">
-                <h4 className="episode-title">{episode.title}</h4>
-                {episode.pubDate && (
-                  <span className="meta-badge date">
-                    📅 {formatDate(episode.pubDate)}
-                  </span>
-                )}
-                <span className="action-btn secondary compact">
-                  Details
-                </span>
-              </div>
+      {episodeData.map((episode) => (
+        <Link
+          key={episode.id}
+          to={`/episode/${encodeURIComponent(episode.id)}`}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <div className="episode-item">
+            <div className="episode-title">{episode.title}</div>
+            <div className="episode-meta">
+              {episode.pubDate && (
+                <div className="episode-date">
+                  📅 {formatDate(episode.pubDate)}
+                </div>
+              )}
+              <button className="details-btn">
+                Details
+              </button>
             </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+          </div>
+        </Link>
+      ))}
+    </>
   );
 };
 

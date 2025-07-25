@@ -132,55 +132,60 @@ const RSSFeedChecker: React.FC = () => {
     return (
     <>
       <div className="header">
-        <div className="header-top">
-          <h1>DuhLaurien's Hand-Hacked RSS Feed Checker</h1>
-        </div>
+        <h1 className="title">DuhLaurien's Hand-Hacked RSS Feed Checker</h1>
         <p className="subtitle">Check episodes and tracks from Homegrown Hits</p>
-        
-        <div className="feed-mode-selector">
-          <label className="mode-option">
+      </div>
+
+      <div className="controls">
+        <div className="radio-group">
+          <div className="radio-item">
             <input
               type="radio"
-              name="feedMode"
+              id="auto"
+              name="feed-type"
+              value="auto"
               checked={!useManualUrl}
               onChange={() => setUseManualUrl(false)}
               disabled={loading}
             />
-            <span>Homegrown Hits (Auto)</span>
-          </label>
-          <label className="mode-option">
+            <label htmlFor="auto">🎵 Homegrown Hits (Auto)</label>
+          </div>
+          <div className="radio-item">
             <input
               type="radio"
-              name="feedMode"
+              id="manual"
+              name="feed-type"
+              value="manual"
               checked={useManualUrl}
               onChange={() => setUseManualUrl(true)}
               disabled={loading}
             />
-            <span>Manual URL</span>
-          </label>
+            <label htmlFor="manual">🔗 Manual URL</label>
+          </div>
         </div>
-        
-        <div className="feed-input">
+
+        <div className="input-group">
           <input
-            type="url"
+            type="text"
             value={feedUrl}
             onChange={(e) => setFeedUrl(e.target.value)}
-            placeholder={useManualUrl ? "Enter RSS feed URL" : "Homegrown Hits feed will load automatically"}
-            className="feed-url-input"
+            placeholder={useManualUrl ? "Enter RSS feed URL..." : "Homegrown Hits feed will load automatically"}
+            className="feed-input"
+            id="feedUrl"
             disabled={loading || !useManualUrl}
           />
           <button 
             onClick={fetchAndAnalyzeFeed} 
             disabled={loading || (useManualUrl && !feedUrl)} 
-            className="fetch-button"
+            className="check-btn"
           >
             {loading ? (
               <>
                 <span className="loading-spinner"></span>
-                Analyzing...
+                🔄 Checking...
               </>
             ) : (
-              'Check Feed'
+              '✨ Check Feed'
             )}
           </button>
         </div>
@@ -202,7 +207,7 @@ const RSSFeedChecker: React.FC = () => {
 
       {/* Episode List */}
       {feedData && (
-        <div className="feed-results">
+        <div className="episodes">
           {feedData?.rss?.channel?.item && (
             <EpisodeList 
               episodes={Array.isArray(feedData.rss.channel.item) 
@@ -226,8 +231,8 @@ const RSSFeedChecker: React.FC = () => {
     );
   };
 
-  // Use the new Homegrown Hits artwork
-  const showArtwork = '/homegrown-hits-new-artowrk.JPG';
+  // Use the background image from the HTML file
+  const showArtwork = 'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
 
 
   return (
@@ -238,7 +243,7 @@ const RSSFeedChecker: React.FC = () => {
         style={{ backgroundImage: `url(${showArtwork})` }}
       />
       
-      <div className="rss-feed-checker">
+      <div className="container">
         <Routes>
           <Route path="/" element={<MainFeedPage />} />
           <Route 
