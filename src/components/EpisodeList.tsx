@@ -112,9 +112,6 @@ const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
                   📅 {formatDate(episode.pubDate)}
                 </div>
               )}
-              <button className="details-btn">
-                Details
-              </button>
             </div>
           </div>
         </Link>

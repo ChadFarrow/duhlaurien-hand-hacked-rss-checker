@@ -229,6 +229,54 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
           />
         </div>
 
+        {/* Track Listing with Times */}
+        {chapters && chapters.chapters.length > 0 && (
+          <div className="episode-section">
+            <h2>Track Listing</h2>
+            <div className="track-listing">
+              {chapters.chapters
+                .filter(chapter => {
+                  // Filter to music tracks - exclude segments like "Value for Value", "Boostagrams", etc.
+                  const title = chapter.title.toLowerCase();
+                  return !title.includes('value') && 
+                         !title.includes('boostagram') && 
+                         !title.includes('hit these') &&
+                         !title.includes('what do you desire') &&
+                         !title.includes('decentralize') &&
+                         !title.includes('new to demu') &&
+                         !title.includes('matt the tall') &&
+                         !title.includes('frankiepaint') &&
+                         !title.includes('buttheart') &&
+                         !title.includes('netned') &&
+                         !title.includes('(213)') &&
+                         !title.includes('episode') &&
+                         !title.includes('tiddicate') &&
+                         !title.includes('hgh ') &&
+                         !title.includes('in the hitter');
+                })
+                .map((track, index, filteredTracks) => {
+                  const nextTrack = filteredTracks[index + 1];
+                  const startTime = chapterService.formatTime(track.startTime);
+                  const endTime = nextTrack ? chapterService.formatTime(nextTrack.startTime) : '';
+                  
+                  return (
+                    <div key={index} className="track-item">
+                      <div className="track-info">
+                        <div className="track-title">{track.title}</div>
+                        <div className="track-time">
+                          {startTime}{endTime && ` - ${endTime}`}
+                        </div>
+                      </div>
+                      {track.img && (
+                        <img src={track.img} alt={track.title} className="track-image" />
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
         {/* Chapters Section */}
         {episodeData.chapters && (
           <div className="episode-section">
