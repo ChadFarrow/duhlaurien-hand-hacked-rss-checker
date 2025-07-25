@@ -1,0 +1,7 @@
+{
+  "terminal.integrated.cwd": "/Users/chad-mini/Vibe/dl-rss-checker",
+  "claude.defaultDirectory": "/Users/chad-mini/Vibe/dl-rss-checker",
+  "claude.workingDirectory": "/Users/chad-mini/Vibe/dl-rss-checker",
+  "files.defaultLanguage": "typescript",
+  "typescript.preferences.includePackageJsonAutoImports": "on"
+} 
