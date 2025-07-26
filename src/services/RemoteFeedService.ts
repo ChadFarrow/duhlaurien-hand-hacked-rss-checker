@@ -359,7 +359,8 @@ class RemoteFeedService {
     const promises = feedGuids.map(async (guid, index) => {
       // Check cache first
       const cached = this.cache.get(guid);
-      if (cached && cached.feedData) {
+      if (cached && cached.feedData && this.isCacheValid(cached)) {
+        console.log(`Using cached feed data for ${guid} (age: ${cached.lastFetched ? Math.round((Date.now() - cached.lastFetched.getTime()) / 1000) : 0}s)`);
         results.set(guid, cached.feedData);
         return { guid, feedData: cached.feedData };
       }
@@ -419,6 +420,16 @@ class RemoteFeedService {
             const existingCache = this.cache.get(guid);
             if (existingCache) {
               existingCache.feedData = parseResult.feed;
+              existingCache.lastFetched = new Date();
+            } else {
+              // Create new cache entry if it doesn't exist
+              this.cache.set(guid, {
+                guid,
+                title: parseResult.feed?.rss?.channel?.title || 'Remote Podcast',
+                feedUrl,
+                feedData: parseResult.feed,
+                lastFetched: new Date()
+              });
             }
             return { guid, feedData: parseResult.feed };
           }

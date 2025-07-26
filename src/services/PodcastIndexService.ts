@@ -9,6 +9,12 @@ interface PodcastInfo {
   feedGuid?: string;
 }
 
+interface CachedPodcastInfo {
+  info: PodcastInfo;
+  timestamp: number;
+  source: 'api' | 'rss' | 'fallback';
+}
+
 interface EpisodeInfo {
   id: number;
   title: string;
@@ -27,7 +33,10 @@ class PodcastIndexService {
   private apiKey: string;
   private apiSecret: string;
   private baseUrl = 'https://api.podcastindex.org/api/1.0';
-  private cache = new Map<string, PodcastInfo>();
+  private cache = new Map<string, CachedPodcastInfo>();
+  private rssChannelCache = new Map<string, { channel: RSSChannel; timestamp: number }>();
+  private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+  private readonly RSS_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for RSS data
   private retryConfig: RetryConfig = {
     maxAttempts: 3,
     initialDelay: 1000, // 1 second
@@ -166,9 +175,25 @@ class PodcastIndexService {
   }
 
   async getPodcastByGuid(feedGuid: string, rssChannel?: RSSChannel): Promise<PodcastInfo | null> {
-    // Check cache first
-    if (this.cache.has(feedGuid)) {
-      return this.cache.get(feedGuid)!;
+    // Check cache first with expiration
+    const cached = this.cache.get(feedGuid);
+    if (cached) {
+      const age = Date.now() - cached.timestamp;
+      // Use longer cache duration for RSS/fallback sources since they're more stable
+      const maxAge = cached.source === 'api' ? this.CACHE_DURATION : this.RSS_CACHE_DURATION;
+      
+      if (age < maxAge) {
+        console.log(`Using cached ${cached.source} data for GUID ${feedGuid} (age: ${Math.round(age / 1000)}s)`);
+        return cached.info;
+      }
+    }
+    
+    // Cache RSS channel data if provided
+    if (rssChannel && rssChannel['podcast:guid'] === feedGuid) {
+      this.rssChannelCache.set(feedGuid, {
+        channel: rssChannel,
+        timestamp: Date.now()
+      });
     }
 
     try {
@@ -191,8 +216,12 @@ class PodcastIndexService {
           feedGuid: feedGuid
         };
         
-        // Cache the result
-        this.cache.set(feedGuid, podcastInfo);
+        // Cache the result with metadata
+        this.cache.set(feedGuid, {
+          info: podcastInfo,
+          timestamp: Date.now(),
+          source: 'api'
+        });
         return podcastInfo;
       }
     } catch (error: any) {
@@ -206,10 +235,18 @@ class PodcastIndexService {
       }
       
       // Try RSS channel data as first fallback
-      if (rssChannel) {
-        const rssInfo = this.extractPodcastInfoFromChannel(rssChannel, feedGuid);
+      // First check if we have cached RSS channel data
+      const cachedRssChannel = this.rssChannelCache.get(feedGuid);
+      const channelToUse = rssChannel || cachedRssChannel?.channel;
+      
+      if (channelToUse) {
+        const rssInfo = this.extractPodcastInfoFromChannel(channelToUse, feedGuid);
         if (rssInfo) {
-          this.cache.set(feedGuid, rssInfo);
+          this.cache.set(feedGuid, {
+            info: rssInfo,
+            timestamp: Date.now(),
+            source: 'rss'
+          });
           return rssInfo;
         }
       }
@@ -223,7 +260,11 @@ class PodcastIndexService {
           title: fallbackName,
           feedGuid: feedGuid
         };
-        this.cache.set(feedGuid, fallbackInfo);
+        this.cache.set(feedGuid, {
+          info: fallbackInfo,
+          timestamp: Date.now(),
+          source: 'fallback'
+        });
         return fallbackInfo;
       }
       
@@ -236,7 +277,11 @@ class PodcastIndexService {
           title: `Unknown Podcast (${feedGuid.slice(0, 8)}...)`,
           feedGuid: feedGuid
         };
-        this.cache.set(feedGuid, genericInfo);
+        this.cache.set(feedGuid, {
+          info: genericInfo,
+          timestamp: Date.now(),
+          source: 'fallback'
+        });
         return genericInfo;
       }
     }
@@ -280,9 +325,15 @@ class PodcastIndexService {
     
     // Get cached results first
     const uncachedGuids = feedGuids.filter(guid => {
-      if (this.cache.has(guid)) {
-        results.set(guid, this.cache.get(guid)!);
-        return false;
+      const cached = this.cache.get(guid);
+      if (cached) {
+        const age = Date.now() - cached.timestamp;
+        const maxAge = cached.source === 'api' ? this.CACHE_DURATION : this.RSS_CACHE_DURATION;
+        
+        if (age < maxAge) {
+          results.set(guid, cached.info);
+          return false;
+        }
       }
       return true;
     });
@@ -299,6 +350,66 @@ class PodcastIndexService {
     );
 
     return results;
+  }
+
+  // Cache management methods
+  clearCache(feedGuid?: string): void {
+    if (feedGuid) {
+      this.cache.delete(feedGuid);
+      this.rssChannelCache.delete(feedGuid);
+      console.log(`Cleared cache for GUID: ${feedGuid}`);
+    } else {
+      this.cache.clear();
+      this.rssChannelCache.clear();
+      console.log('Cleared all podcast cache');
+    }
+  }
+
+  getCacheStats(): { 
+    totalCached: number; 
+    apiCached: number; 
+    rssCached: number; 
+    fallbackCached: number;
+    oldestEntry: number;
+    newestEntry: number;
+  } {
+    let apiCount = 0;
+    let rssCount = 0;
+    let fallbackCount = 0;
+    let oldest = Date.now();
+    let newest = 0;
+
+    this.cache.forEach(cached => {
+      switch (cached.source) {
+        case 'api': apiCount++; break;
+        case 'rss': rssCount++; break;
+        case 'fallback': fallbackCount++; break;
+      }
+      if (cached.timestamp < oldest) oldest = cached.timestamp;
+      if (cached.timestamp > newest) newest = cached.timestamp;
+    });
+
+    return {
+      totalCached: this.cache.size,
+      apiCached: apiCount,
+      rssCached: rssCount,
+      fallbackCached: fallbackCount,
+      oldestEntry: oldest,
+      newestEntry: newest
+    };
+  }
+
+  // Preload RSS channel data for better performance
+  preloadRSSChannels(channels: Map<string, RSSChannel>): void {
+    channels.forEach((channel, guid) => {
+      if (channel['podcast:guid'] === guid) {
+        this.rssChannelCache.set(guid, {
+          channel,
+          timestamp: Date.now()
+        });
+      }
+    });
+    console.log(`Preloaded ${channels.size} RSS channels into cache`);
   }
 }
 
