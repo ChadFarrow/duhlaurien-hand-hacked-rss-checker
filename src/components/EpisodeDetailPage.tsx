@@ -31,8 +31,9 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
       // Extract episode number from title like "Homegrown Hits - Episode 95"
       const episodeNumberMatch = ep.title.match(/Episode\s+(\d+)/i);
       const episodeNumber = episodeNumberMatch ? episodeNumberMatch[1] : (index + 1).toString();
-      const id = ep.guid?._ || `episode-${episodeNumber}`;
-      return id === episodeId;
+      // Create a unique ID that includes both episode number and index to prevent duplicates
+      const uniqueId = ep.guid?._ || `episode-${episodeNumber}-${index}`;
+      return uniqueId === episodeId;
     });
   } else {
     const atomEpisodes = episodes as AtomEntry[];
@@ -40,8 +41,9 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
       // Extract episode number from title like "Homegrown Hits - Episode 95"
       const episodeNumberMatch = ep.title.match(/Episode\s+(\d+)/i);
       const episodeNumber = episodeNumberMatch ? episodeNumberMatch[1] : (index + 1).toString();
-      const id = ep.id || `episode-${episodeNumber}`;
-      return id === episodeId;
+      // Create a unique ID that includes both episode number and index to prevent duplicates
+      const uniqueId = ep.id || `episode-${episodeNumber}-${index}`;
+      return uniqueId === episodeId;
     });
   }
 
