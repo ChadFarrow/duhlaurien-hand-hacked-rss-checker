@@ -19,7 +19,6 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
   const [chapters, setChapters] = useState<ChaptersData | null>(null);
   const [loadingChapters, setLoadingChapters] = useState(false);
   const [podcastNames, setPodcastNames] = useState<Map<string, string>>(new Map());
-  const [episodeInfo, setEpisodeInfo] = useState<Map<string, {title: string, podcastTitle: string}>>(new Map());
   const [remoteValueRecipients, setRemoteValueRecipients] = useState<Map<string, ValueBlock | null>>(new Map());
 
   // Find the episode by ID
@@ -108,7 +107,6 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
 
           // Skip episode information fetching while API is unavailable
           // This will be re-enabled once the Podcast Index API is stable
-          setEpisodeInfo(new Map());
 
           // Fetch remote feed value recipients
           if (feedGuids.length > 0) {
@@ -383,7 +381,7 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                          !title.includes('live') &&
                          !title.includes('homegrown hits');
                 })
-                .map((track, index, filteredTracks) => {
+                .map((track, index) => {
                   // Find the next chapter (any type) after this track's start time
                   const nextChapter = chapters.chapters.find(chapter => 
                     chapter.startTime > track.startTime

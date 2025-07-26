@@ -16,7 +16,6 @@ const RSSFeedChecker: React.FC = () => {
   const [useManualUrl, setUseManualUrl] = useState(false);
   const [feedData, setFeedData] = useState<RSSFeed | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<ValidationProgress>({
     current: 0,
     total: 0,
@@ -24,39 +23,8 @@ const RSSFeedChecker: React.FC = () => {
     status: 'idle'
   });
 
-
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        switch (event.key) {
-          case 'Enter':
-            event.preventDefault();
-            if (!loading) {
-              fetchAndAnalyzeFeed();
-            }
-            break;
-          case 'k':
-            event.preventDefault();
-            const input = document.querySelector('.feed-url-input') as HTMLInputElement;
-            if (input) {
-              input.focus();
-              input.select();
-            }
-            break;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [loading]);
-
-
   const fetchAndAnalyzeFeed = async () => {
     setLoading(true);
-    setError(null);
     setFeedData(null);
     
     setProgress({
@@ -109,12 +77,38 @@ const RSSFeedChecker: React.FC = () => {
       setProgress(prev => ({ ...prev, percentage: 100, status: 'completed' }));
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch and analyze feed');
       setProgress(prev => ({ ...prev, status: 'error' }));
     } finally {
       setLoading(false);
     }
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case 'Enter':
+            event.preventDefault();
+            if (!loading) {
+              fetchAndAnalyzeFeed();
+            }
+            break;
+          case 'k':
+            event.preventDefault();
+            const input = document.querySelector('.feed-url-input') as HTMLInputElement;
+            if (input) {
+              input.focus();
+              input.select();
+            }
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [loading]);
 
   useEffect(() => {
     if (!useManualUrl) {
@@ -126,8 +120,7 @@ const RSSFeedChecker: React.FC = () => {
   // Component to render the main feed page
   const MainFeedPage = () => {
     // Get show artwork URL
-    const showArtwork = feedData?.rss?.channel?.image?.url || 
-                       feedData?.rss?.channel?.['itunes:image']?.$?.href;
+    // Show artwork handled in component
 
     return (
     <>

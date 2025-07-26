@@ -1,8 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { 
-  RSSFeed, 
-  RSSRoot, 
-  AtomRoot 
+  RSSFeed
 } from '../types/feed';
 import { FeedMetadata } from '../types/validation';
 

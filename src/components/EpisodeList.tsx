@@ -20,7 +20,7 @@ interface EpisodeData {
 }
 
 const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
-  const [episodeData, setEpisodeData] = useState<EpisodeData[]>(() => {
+  const [episodeData] = useState<EpisodeData[]>(() => {
     return episodes.map((episode, index) => {
       const title = feedType === 'rss' 
         ? (episode as RSSItem).title 
@@ -56,27 +56,6 @@ const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
   });
 
 
-  const formatDuration = (duration?: string): string => {
-    if (!duration) return '';
-    
-    // If already in HH:MM:SS or MM:SS format, return as is
-    if (duration.includes(':')) {
-      return duration;
-    }
-    
-    // If it's in seconds, convert to MM:SS or HH:MM:SS
-    const seconds = parseInt(duration);
-    if (isNaN(seconds)) return duration;
-    
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const formatDate = (dateString?: string): string => {
     if (!dateString) return '';
