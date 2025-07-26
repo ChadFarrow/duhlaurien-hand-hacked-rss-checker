@@ -86,7 +86,19 @@ class PodcastIndexService {
     ['6ef5bcf5-4dfe-5bf3-9e2c-0af6b2a78933', 'Unknown Podcast 22'],
     ['469b403f-db2d-574c-9db9-96dbb3f6561c', 'Unknown Podcast 23'],
     ['7a77edc0-15a5-5d27-8448-115065ca04cf', 'Unknown Podcast 24'],
-    ['930fe2d8-ea6f-5370-a571-1d592a6f40ac', 'Unknown Podcast 25']
+    ['930fe2d8-ea6f-5370-a571-1d592a6f40ac', 'Unknown Podcast 25'],
+    // Additional fallback names for missing GUIDs from Lightning Thrashes episode
+    ['0d5a8efb-e132-5f1b-9ab4-3fd0644dbb30', 'Unknown Podcast 26'],
+    ['43e7328c-9299-51b2-95fd-cd822976b500', 'Unknown Podcast 27'],
+    ['a9618a99-8ec0-5210-a8ad-2d2240049ea9', 'Unknown Podcast 28'],
+    ['07b65561-a11e-5f18-a5fe-6e0586871b7e', 'Unknown Podcast 29'],
+    ['4068353f-f404-5d5c-937e-2c1582fcbf14', 'Unknown Podcast 30'],
+    ['5847498b-9db5-509f-860f-3f3c3c422698', 'Unknown Podcast 31'],
+    ['7ce9b349-b641-5a5e-8354-9d7ea6fa42e1', 'Unknown Podcast 32'],
+    ['72f2cafd-0535-5089-a2ff-6a54e396d30e', 'Unknown Podcast 33'],
+    ['962b4cdd-1d7e-521a-a6cf-9df4b88c870a', 'Unknown Podcast 34'],
+    ['508bfb27-3623-513c-9eda-0b512a2abc82', 'Unknown Podcast 35'],
+    ['acd9b1bf-2bdd-5415-81c4-fd428ded14d4', 'Unknown Podcast 36']
   ]);
 
   constructor() {
