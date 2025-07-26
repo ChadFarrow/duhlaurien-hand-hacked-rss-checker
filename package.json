@@ -2,6 +2,21 @@
   "name": "duhlaurien-hand-hacked-rss-checker",
   "version": "0.1.0",
   "private": true,
+  "description": "A modern RSS feed checker and podcast episode viewer with Value 4 Value support, featuring glassmorphism UI design and comprehensive Podcasting 2.0 validation.",
+  "homepage": "https://dl-rss-checker-a2mqgqyoz-chadfs-projects.vercel.app",
+  "keywords": [
+    "rss",
+    "podcast",
+    "value4value",
+    "podcasting2.0",
+    "lightning",
+    "bitcoin",
+    "react",
+    "typescript",
+    "glassmorphism"
+  ],
+  "author": "DuhLaurien",
+  "license": "MIT",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

@@ -1,166 +1,129 @@
 # DuhLaurien's Hand-Hacked RSS Feed Checker
 
-A web-based application that validates and analyzes RSS feeds for Podcasting 2.0 compliance, providing detailed feedback on feed structure, metadata, and Podcasting 2.0 specific elements.
+![Project Image](public/project-image.jpg)
 
-## 🎯 Project Overview
+A modern RSS feed checker and podcast episode viewer with **Value 4 Value** support, featuring glassmorphism UI design and comprehensive Podcasting 2.0 validation.
 
-This application helps podcast creators, hosting platforms, and developers ensure their RSS feeds meet Podcasting 2.0 standards. It provides comprehensive validation feedback, educational content, and actionable recommendations for feed optimization.
+## 🌟 Features
 
-### Key Features
-- **RSS Feed Validation**: Parse and validate RSS feeds for Podcasting 2.0 compliance
-- **Comprehensive Analysis**: Check required and optional Podcasting 2.0 elements
-- **Educational Content**: Learn about validation rules and best practices
-- **Modern UI**: Clean, responsive interface with dark/light theme support
-- **Export Reports**: Save validation results in JSON and CSV formats
+- **🎵 Podcast Episode Viewer**: Browse and explore podcast episodes with detailed track information
+- **💰 Value 4 Value Support**: Display value recipient information and payment splits for podcast tracks
+- **🎨 Modern Glassmorphism UI**: Beautiful transparent design with custom color palette
+- **📱 Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- **🔍 RSS/Atom Feed Support**: Parse and validate RSS and Atom feeds
+- **⚡ Real-time Validation**: Instant feedback on feed structure and Podcasting 2.0 compliance
+- **🌐 CORS Proxy Support**: Handle cross-origin requests for remote feeds
+- **📊 Chapter Support**: Display detailed track listings with timestamps
 
-## 🚀 Getting Started
+## 🚀 Live Demo
 
-### Prerequisites
-- Node.js 16+ 
-- npm or yarn
+**Visit the live application:** [https://dl-rss-checker-a2mqgqyoz-chadfs-projects.vercel.app](https://dl-rss-checker-a2mqgqyoz-chadfs-projects.vercel.app)
 
-### Installation
-```bash
-# Clone the repository
-git clone <repository-url>
-cd dl-rss-checker
+## 🎯 Test with Homegrown Hits
 
-# Install dependencies
-npm install
-
-# Start the development server
-npm start
+Try the application with the Homegrown Hits podcast feed:
 ```
-
-Open [http://localhost:3000](http://localhost:3000) to view the application.
-
-## 📋 Task Master Integration
-
-This project uses [Claude Task Master](https://github.com/eyaltoledano/claude-task-master) for AI-powered task management and development assistance.
-
-### Task Master Setup
-The project is configured with Task Master and includes:
-- **PRD**: Comprehensive Product Requirements Document
-- **Tasks**: 5 structured development tasks with priorities and dependencies
-- **Templates**: Reusable templates for future projects
-
-### Available Tasks
-1. **Task 1**: Enhance RSS Feed Parsing and Validation (High Priority)
-2. **Task 2**: Improve User Interface and User Experience (High Priority)
-3. **Task 3**: Implement CORS Proxy and Feed Access (Medium Priority)
-4. **Task 4**: Add Educational Content and Documentation (Medium Priority)
-5. **Task 5**: Export and Reporting Functionality (Low Priority)
-
-### Using Task Master
-```bash
-# List all tasks
-npx task-master list
-
-# Show next recommended task
-npx task-master next
-
-# Show specific task(s)
-npx task-master show 1,3,5
+https://feed.homegrownhits.xyz/feed.xml
 ```
-
-### AI Assistant Commands
-In your editor's AI chat, you can:
-- "What's the next task I should work on?"
-- "Can you help me implement task 1?"
-- "Show me tasks 1, 3, and 5"
-- "Can you help me expand task 4?"
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: React 19+ with TypeScript
-- **Styling**: CSS3 with modern design principles
-- **XML Parsing**: xml2js library
-- **HTTP Requests**: Axios for API calls
-- **Build Tool**: Create React App
-- **Task Management**: Claude Task Master
+- **Frontend**: React 19 + TypeScript
+- **Styling**: CSS3 with Glassmorphism effects
+- **Routing**: React Router DOM
+- **HTTP Client**: Axios
+- **XML Parsing**: Fast XML Parser
+- **Deployment**: Vercel
 
-## 📁 Project Structure
+## 🎨 Design Features
 
-```
-dl-rss-checker/
-├── .taskmaster/           # Task Master configuration and tasks
-│   ├── config.json       # Task Master project configuration
-│   ├── docs/             # Project documentation
-│   │   └── prd.txt       # Product Requirements Document
-│   ├── tasks/            # Development tasks
-│   └── templates/        # Reusable templates
-├── public/               # Static assets
-├── src/                  # Source code
-│   ├── components/       # React components
-│   ├── services/         # Business logic services
-│   ├── types/           # TypeScript type definitions
-│   └── utils/           # Utility functions
-├── package.json
-└── README.md
-```
+- **Glassmorphism UI**: Transparent backgrounds with backdrop blur effects
+- **Custom Color Palette**: 
+  - Primary: `#d2cbf0` (Light Purple)
+  - Secondary: `#5e618f` (Dark Purple)
+  - Background: `#140d1b` (Dark Background)
+  - Accent: `#9cc2d1` (Light Blue)
+- **Responsive Layout**: Adapts to all screen sizes
+- **Smooth Animations**: Hover effects and transitions
 
-## 🎨 Features
+## 🔧 Value 4 Value Features
 
-### Core Functionality
-- RSS feed URL input and validation
-- Podcasting 2.0 compliance checking
-- Structured validation results with severity levels
-- Compliance scoring and recommendations
+- **Value Recipient Display**: Show payment splits for podcast hosts and guests
+- **Remote Feed Integration**: Fetch value recipient data from external podcast feeds
+- **Payment Percentage Breakdown**: Detailed percentage calculations for each recipient
+- **Lightning Address Links**: Direct links to Lightning addresses for payments
 
-### User Experience
-- Modern, responsive design
-- Dark/light theme toggle
-- Accessibility compliance (WCAG 2.1 AA)
-- Mobile-friendly interface
-- Real-time validation feedback
+## 📦 Installation
 
-### Advanced Features
-- CORS proxy support for restricted feeds
-- Educational content and documentation
-- Export functionality (JSON, CSV)
-- Feed comparison capabilities (planned)
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/ChadFarrow/duhlaurien-hand-hacked-rss-checker.git
+   cd duhlaurien-hand-hacked-rss-checker
+   ```
 
-## 🧪 Testing
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-```bash
-# Run tests
-npm test
+3. **Start development server**:
+   ```bash
+   npm start
+   ```
 
-# Run tests in watch mode
-npm test -- --watch
+4. **Open your browser** and navigate to `http://localhost:3000`
 
-# Run tests with coverage
-npm test -- --coverage
-```
+## 🌐 Deployment
 
-## 📦 Build and Deployment
+The application is deployed on Vercel and automatically updates when changes are pushed to the main branch.
 
-```bash
-# Build for production
-npm run build
+### Environment Variables (Optional)
 
-# Deploy to static hosting
-# The build folder contains the production-ready application
-```
+For enhanced functionality, you can set up Podcast Index API credentials:
+
+1. Get API credentials from [https://podcastindex.org/developer](https://podcastindex.org/developer)
+2. Create a `.env.local` file in the project root:
+   ```
+   REACT_APP_PODCAST_INDEX_API_KEY=your_api_key_here
+   REACT_APP_PODCAST_INDEX_API_SECRET=your_api_secret_here
+   ```
+3. Restart the development server
+
+## 🎵 Supported Feed Types
+
+- **RSS 2.0**: Full support with Podcasting 2.0 extensions
+- **Atom**: Basic support for Atom feeds
+- **Podcasting 2.0**: Value 4 Value, chapters, transcripts, soundbites
+
+## 🔍 Validation Features
+
+- **RSS Structure Validation**: Check required and optional elements
+- **Podcasting 2.0 Compliance**: Validate Value 4 Value implementation
+- **Chapter Support**: Parse and display podcast chapters
+- **Value Recipient Validation**: Verify payment split configurations
+
+## 📱 Browser Support
+
+- Chrome (recommended)
+- Firefox
+- Safari
+- Edge
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+This is a personal project, but suggestions and feedback are welcome!
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT License - feel free to use this code for your own projects.
 
-## 🔗 Resources
+## 🙏 Acknowledgments
 
-- [Podcasting 2.0 Specification](https://github.com/Podcastindex-org/podcast-namespace)
-- [RSS 2.0 Specification](https://cyber.harvard.edu/rss/rss.html)
-- [Claude Task Master](https://github.com/eyaltoledano/claude-task-master)
+- **Homegrown Hits** for the project image and inspiration
+- **Podcasting 2.0** community for the Value 4 Value specification
+- **Vercel** for hosting and deployment
+- **React** team for the amazing framework
 
-## 📞 Support
+---
 
-For questions or support, please open an issue in the repository.
+**Built with ❤️ by DuhLaurien**
