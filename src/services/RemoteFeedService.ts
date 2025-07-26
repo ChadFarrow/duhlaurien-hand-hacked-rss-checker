@@ -9,6 +9,7 @@ interface RemoteFeedInfo {
   valueRecipients?: ValueBlock;
   lastFetched?: Date;
   error?: string;
+  feedData?: any; // Cached parsed feed data
 }
 
 class RemoteFeedService {
@@ -345,6 +346,89 @@ class RemoteFeedService {
       const valueRecipients = await this.getRemoteFeedValueRecipients(guid);
       results.set(guid, valueRecipients);
       return { guid, valueRecipients };
+    });
+    
+    await Promise.allSettled(promises);
+    return results;
+  }
+
+  async getMultipleRemoteFeedData(feedGuids: string[]): Promise<Map<string, any>> {
+    const results = new Map<string, any>();
+    
+    // Process in parallel but with some delay to avoid overwhelming servers
+    const promises = feedGuids.map(async (guid, index) => {
+      // Check cache first
+      const cached = this.cache.get(guid);
+      if (cached && cached.feedData) {
+        results.set(guid, cached.feedData);
+        return { guid, feedData: cached.feedData };
+      }
+      
+      // Get the feed URL
+      const feedUrl = this.knownFeeds.get(guid);
+      if (!feedUrl) {
+        results.set(guid, null);
+        return { guid, feedData: null };
+      }
+      
+      // Stagger requests by 500ms each to be more respectful
+      await new Promise(resolve => setTimeout(resolve, index * 500));
+      
+      try {
+        // Try to fetch and parse the feed using the first proxy
+        const proxyBase = this.corsProxies[0];
+        let proxyUrl: string;
+        if (proxyBase.includes('allorigins.win')) {
+          proxyUrl = `${proxyBase}${encodeURIComponent(feedUrl)}`;
+        } else if (proxyBase.includes('codetabs.com')) {
+          proxyUrl = `${proxyBase}${encodeURIComponent(feedUrl)}`;
+        } else if (proxyBase.includes('corsproxy.io')) {
+          proxyUrl = `${proxyBase}${encodeURIComponent(feedUrl)}`;
+        } else if (proxyBase.includes('cors.sh')) {
+          proxyUrl = `${proxyBase}${feedUrl}`;
+        } else if (proxyBase.includes('thingproxy.freeboard.io')) {
+          proxyUrl = `${proxyBase}${feedUrl}`;
+        } else {
+          proxyUrl = `${proxyBase}${feedUrl}`;
+        }
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const response = await fetch(proxyUrl, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          let feedContent: string;
+          
+          // Parse response based on proxy service format
+          if (proxyBase.includes('allorigins.win')) {
+            const data = await response.json();
+            feedContent = data.contents;
+          } else {
+            feedContent = await response.text();
+          }
+          
+          const parseResult = await feedParserService.parseFeed(feedContent);
+          if (parseResult.success && parseResult.feed) {
+            results.set(guid, parseResult.feed);
+            // Update cache with feed data
+            const existingCache = this.cache.get(guid);
+            if (existingCache) {
+              existingCache.feedData = parseResult.feed;
+            }
+            return { guid, feedData: parseResult.feed };
+          }
+        }
+      } catch (error) {
+        console.log(`Failed to fetch feed data for ${guid}, will use fallback`);
+      }
+      
+      results.set(guid, null);
+      return { guid, feedData: null };
     });
     
     await Promise.allSettled(promises);

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { RSSChannel } from '../types/feed';
 
 interface PodcastInfo {
   id: number;
@@ -148,7 +149,23 @@ class PodcastIndexService {
     throw lastError;
   }
 
-  async getPodcastByGuid(feedGuid: string): Promise<PodcastInfo | null> {
+  private extractPodcastInfoFromChannel(channel: RSSChannel | undefined, feedGuid: string): PodcastInfo | null {
+    if (!channel) return null;
+    
+    // Extract podcast info from RSS channel data
+    const podcastInfo: PodcastInfo = {
+      id: 0, // No ID from RSS feed
+      title: channel.title || `Unknown Podcast (${feedGuid.slice(0, 8)}...)`,
+      author: channel['itunes:author'] || channel.managingEditor || undefined,
+      image: channel.image?.url || channel['itunes:image']?.$?.href || undefined,
+      feedGuid: feedGuid
+    };
+    
+    console.log(`Using RSS feed data as fallback for GUID ${feedGuid}: "${podcastInfo.title}"`);
+    return podcastInfo;
+  }
+
+  async getPodcastByGuid(feedGuid: string, rssChannel?: RSSChannel): Promise<PodcastInfo | null> {
     // Check cache first
     if (this.cache.has(feedGuid)) {
       return this.cache.get(feedGuid)!;
@@ -188,10 +205,19 @@ class PodcastIndexService {
         }
       }
       
-      // If API is unavailable, try fallback names
+      // Try RSS channel data as first fallback
+      if (rssChannel) {
+        const rssInfo = this.extractPodcastInfoFromChannel(rssChannel, feedGuid);
+        if (rssInfo) {
+          this.cache.set(feedGuid, rssInfo);
+          return rssInfo;
+        }
+      }
+      
+      // If no RSS data, try hardcoded fallback names
       const fallbackName = this.fallbackNames.get(feedGuid);
       if (fallbackName) {
-        console.log(`Using fallback name "${fallbackName}" for GUID ${feedGuid}`);
+        console.log(`Using hardcoded fallback name "${fallbackName}" for GUID ${feedGuid}`);
         const fallbackInfo: PodcastInfo = {
           id: 0,
           title: fallbackName,
@@ -200,9 +226,10 @@ class PodcastIndexService {
         this.cache.set(feedGuid, fallbackInfo);
         return fallbackInfo;
       }
+      
       // Only warn once per GUID and only for truly unknown GUIDs
       if (!this.cache.has(feedGuid)) {
-        console.warn(`No fallback name available for GUID: ${feedGuid}`);
+        console.warn(`No fallback available for GUID: ${feedGuid}`);
         // Create a generic fallback to prevent repeated errors
         const genericInfo: PodcastInfo = {
           id: 0,
@@ -248,7 +275,7 @@ class PodcastIndexService {
   }
 
   // Batch fetch multiple podcasts to reduce API calls
-  async getPodcastsByGuids(feedGuids: string[]): Promise<Map<string, PodcastInfo>> {
+  async getPodcastsByGuids(feedGuids: string[], rssChannels?: Map<string, RSSChannel>): Promise<Map<string, PodcastInfo>> {
     const results = new Map<string, PodcastInfo>();
     
     // Get cached results first
@@ -263,7 +290,8 @@ class PodcastIndexService {
     // Fetch uncached podcasts
     await Promise.all(
       uncachedGuids.map(async (guid) => {
-        const info = await this.getPodcastByGuid(guid);
+        const rssChannel = rssChannels?.get(guid);
+        const info = await this.getPodcastByGuid(guid, rssChannel);
         if (info) {
           results.set(guid, info);
         }

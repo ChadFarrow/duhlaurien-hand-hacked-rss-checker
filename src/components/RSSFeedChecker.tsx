@@ -252,7 +252,8 @@ const RSSFeedChecker: React.FC = () => {
                       episodes={Array.isArray(feedData.rss.channel.item) 
                         ? feedData.rss.channel.item 
                         : [feedData.rss.channel.item]} 
-                      feedType="rss" 
+                      feedType="rss"
+                      channel={feedData.rss.channel}
                     />
                   ) : feedData?.feed?.entry ? (
                     <EpisodeDetailPage 

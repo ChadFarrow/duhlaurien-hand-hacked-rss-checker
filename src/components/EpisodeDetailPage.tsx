@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { RSSItem, AtomEntry } from '../types/feed';
+import { RSSItem, AtomEntry, RSSChannel } from '../types/feed';
 import { chapterService, ChaptersData } from '../services/ChapterService';
 import { valueTimeSplitService } from '../services/ValueTimeSplitService';
 import { valueRecipientService, ValueBlock } from '../services/ValueRecipientService';
@@ -11,9 +11,10 @@ import './EpisodeDetailPage.css';
 interface EpisodeDetailPageProps {
   episodes: RSSItem[] | AtomEntry[];
   feedType: 'rss' | 'atom';
+  channel?: RSSChannel;
 }
 
-const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedType }) => {
+const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedType, channel }) => {
   const { episodeId } = useParams<{ episodeId: string }>();
   const navigate = useNavigate();
   const [chapters, setChapters] = useState<ChaptersData | null>(null);
@@ -95,7 +96,23 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
         try {
           // Fetch podcast names
           if (feedGuids.length > 0) {
-            const podcastInfoMap = await podcastIndexService.getPodcastsByGuids(feedGuids);
+            // Create a map of RSS channels for remote feeds
+            const rssChannels = new Map<string, RSSChannel>();
+            
+            // First, fetch remote feed data to get their channels
+            const remoteFeedDataMap = await remoteFeedService.getMultipleRemoteFeedData(feedGuids);
+            remoteFeedDataMap.forEach((feedData, guid) => {
+              if (feedData?.rss?.channel) {
+                rssChannels.set(guid, feedData.rss.channel);
+              }
+            });
+            
+            // Add the current feed's channel if it matches any of the GUIDs
+            if (channel && channel['podcast:guid'] && feedGuids.includes(channel['podcast:guid'])) {
+              rssChannels.set(channel['podcast:guid'], channel);
+            }
+            
+            const podcastInfoMap = await podcastIndexService.getPodcastsByGuids(feedGuids, rssChannels);
             const nameMap = new Map<string, string>();
             
             podcastInfoMap.forEach((info, guid) => {
