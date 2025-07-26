@@ -22,6 +22,15 @@ const RSSFeedChecker: React.FC = () => {
     percentage: 0,
     status: 'idle'
   });
+  
+  // CORS proxy services for external feeds
+  const corsProxies = [
+    'https://corsproxy.io/?',
+    'https://api.codetabs.com/v1/proxy?quest=',
+    'https://proxy.cors.sh/',
+    'https://thingproxy.freeboard.io/fetch/',
+    'https://api.allorigins.win/get?url='
+  ];
 
   const fetchAndAnalyzeFeed = async () => {
     setLoading(true);
@@ -36,18 +45,80 @@ const RSSFeedChecker: React.FC = () => {
     });
 
     try {
-      let feedContent: string;
+      let feedContent: string = '';
       
       if (useManualUrl && feedUrl) {
         // Step 1a: Fetch from manual URL
         setProgress(prev => ({ ...prev, current: 1, percentage: 25, currentRule: 'Fetching feed from URL...' }));
-        const response = await axios.get(feedUrl, {
-          headers: {
-            'Accept': 'application/rss+xml, application/xml, text/xml, */*',
-          },
-          timeout: 10000,
-        });
-        feedContent = response.data;
+        
+        // Try to fetch directly first
+        let fetchSuccess = false;
+        try {
+          const response = await axios.get(feedUrl, {
+            headers: {
+              'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+            },
+            timeout: 10000,
+          });
+          feedContent = response.data;
+          fetchSuccess = true;
+        } catch (directError: any) {
+          console.log('Direct fetch failed, trying CORS proxies...', directError.message);
+        }
+        
+        // If direct fetch fails, try CORS proxies
+        if (!fetchSuccess) {
+          for (let i = 0; i < corsProxies.length; i++) {
+            const proxyBase = corsProxies[i];
+            setProgress(prev => ({ 
+              ...prev, 
+              currentRule: `Trying proxy ${i + 1}/${corsProxies.length}...` 
+            }));
+            
+            try {
+              let proxyUrl: string;
+              if (proxyBase.includes('allorigins.win')) {
+                proxyUrl = `${proxyBase}${encodeURIComponent(feedUrl)}`;
+              } else if (proxyBase.includes('codetabs.com')) {
+                proxyUrl = `${proxyBase}${encodeURIComponent(feedUrl)}`;
+              } else if (proxyBase.includes('corsproxy.io')) {
+                proxyUrl = `${proxyBase}${encodeURIComponent(feedUrl)}`;
+              } else if (proxyBase.includes('cors.sh')) {
+                proxyUrl = `${proxyBase}${feedUrl}`;
+              } else if (proxyBase.includes('thingproxy.freeboard.io')) {
+                proxyUrl = `${proxyBase}${feedUrl}`;
+              } else {
+                proxyUrl = `${proxyBase}${feedUrl}`;
+              }
+              
+              const response = await axios.get(proxyUrl, {
+                timeout: 15000,
+              });
+              
+              // Parse response based on proxy service format
+              if (proxyBase.includes('allorigins.win')) {
+                const data = response.data;
+                feedContent = data.contents;
+              } else {
+                feedContent = response.data;
+              }
+              
+              console.log(`Successfully fetched via proxy ${i + 1}`);
+              fetchSuccess = true;
+              break;
+            } catch (proxyError) {
+              console.log(`Proxy ${i + 1} failed:`, proxyError);
+              if (i === corsProxies.length - 1) {
+                throw new Error('All proxy attempts failed. The feed may be unavailable or blocking requests.');
+              }
+            }
+          }
+        }
+        
+        // If still no success, throw error
+        if (!fetchSuccess) {
+          throw new Error('Failed to fetch feed from URL');
+        }
       } else {
         // Step 1b: Fetch from Podcast Index
         setProgress(prev => ({ ...prev, current: 1, percentage: 25, currentRule: 'Fetching feed from Podcast Index...' }));
