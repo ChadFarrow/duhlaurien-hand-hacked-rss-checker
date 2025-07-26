@@ -185,7 +185,10 @@ class PodcastIndexService {
       const maxAge = cached.source === 'api' ? this.CACHE_DURATION : this.RSS_CACHE_DURATION;
       
       if (age < maxAge) {
-        console.log(`Using cached ${cached.source} data for GUID ${feedGuid} (age: ${Math.round(age / 1000)}s)`);
+        // Only log cache hits for debugging, reduce spam in production
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Using cached ${cached.source} data for GUID ${feedGuid} (age: ${Math.round(age / 1000)}s)`);
+        }
         return cached.info;
       }
     }

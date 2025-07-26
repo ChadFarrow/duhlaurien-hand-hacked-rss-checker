@@ -15,6 +15,7 @@ interface RemoteFeedInfo {
 
 class RemoteFeedService {
   private cache = new Map<string, RemoteFeedInfo>();
+  private missingGuidLog = new Set<string>(); // Track logged missing GUIDs to reduce spam
   // Short cache duration for feed validation - ensures fresh data for checking
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for feed validation
 
@@ -40,7 +41,7 @@ class RemoteFeedService {
     ['38970258-bbe2-5f5f-8827-1641a256fe54', 'https://music.behindthesch3m3s.com/wp-content/uploads/CityBeach/citybeach.xml'],
     ['1e7ed1fa-0456-5860-9b34-825d1335d8f8', 'https://music.behindthesch3m3s.com/wp-content/uploads/Rebel Hero/rebel_hero.xml'],
     ['2514d117-8a84-5345-82e8-8ed7b940cf1f', 'https://music.behindthesch3m3s.com/wp-content/uploads/RO Shapiro/ro_shapiro.xml'],
-    ['4a156167-aea1-5bc3-9e7d-504477127f79', 'https://music.behindthesch3m3s.com/wp-content/uploads/The Greensands/the_greensands.xml'],
+    ['4a156167-aea1-5bc3-9e7d-504477127f79', 'https://music.behindthesch3m3s.com/wp-content/uploads/The%20Greensands/the_greensands.xml'],
     ['de032037-63e0-5c6b-820d-13d4319a2b19', 'https://music.behindthesch3m3s.com/wp-content/uploads/FM Rodeo/fm_rodeo.xml']
   ]);
 
@@ -213,20 +214,23 @@ class RemoteFeedService {
 
   private async lookupFeedUrlByGuid(feedGuid: string): Promise<string | null> {
     try {
-      console.log(`Looking up feed URL for GUID: ${feedGuid} via Podcast Index API...`);
       const podcastInfo = await podcastIndexService.getPodcastByGuid(feedGuid);
       
       if (podcastInfo && podcastInfo.feedUrl) {
-        console.log(`Found feed URL for ${feedGuid}: ${podcastInfo.feedUrl}`);
+        console.log(`✅ Found feed URL for ${feedGuid}: ${podcastInfo.feedUrl}`);
         // Cache the discovered feed URL for future use
         this.knownFeeds.set(feedGuid, podcastInfo.feedUrl);
         return podcastInfo.feedUrl;
       }
       
-      console.log(`No feed URL found for GUID: ${feedGuid}`);
+      // Only log once per session for missing GUIDs to reduce spam
+      if (!this.missingGuidLog.has(feedGuid)) {
+        console.log(`ℹ️  GUID ${feedGuid} not found in Podcast Index database`);
+        this.missingGuidLog.add(feedGuid);
+      }
       return null;
     } catch (error) {
-      console.warn(`Failed to lookup feed URL for GUID ${feedGuid}:`, error);
+      console.warn(`❌ Failed to lookup feed URL for GUID ${feedGuid}:`, error);
       return null;
     }
   }
@@ -253,7 +257,7 @@ class RemoteFeedService {
     if (!feedUrl) {
       // Only log once per GUID to reduce spam
       if (!this.cache.has(feedGuid)) {
-        console.warn(`No known feed URL for GUID: ${feedGuid}`);
+        console.log(`ℹ️  No feed URL available for GUID: ${feedGuid} (using fallback data)`);
         // Cache a null result to prevent repeated warnings
         this.cache.set(feedGuid, {
           guid: feedGuid,
