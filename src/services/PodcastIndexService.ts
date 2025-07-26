@@ -33,7 +33,22 @@ class PodcastIndexService {
     ['5a95f9d8-35e3-51f5-a269-ba1df36b4bd8', 'Bloodshot Lies - The Album'],
     ['671612fb-9039-5189-9d4b-0fd9df2093dd', 'That\'s The Spirit!'],
     ['63fb0d8e-793f-5033-bbb4-39a836e3da76', 'Bowl Covers'],
-    ['d6b85f98-6d7a-5eca-b288-dafae4381a1d', 'Street Clones']
+    ['d6b85f98-6d7a-5eca-b288-dafae4381a1d', 'Street Clones'],
+    // Additional fallback names for missing GUIDs
+    ['b328828c-9ba0-5b1d-be33-4cce51968ae1', 'Unknown Podcast 1'],
+    ['aa1e57df-d8aa-5de0-82d8-4f40fac65d7c', 'Unknown Podcast 2'],
+    ['1df430e3-20f6-595e-9af2-8f9d5123c19b', 'Unknown Podcast 3'],
+    ['2b6d971f-562e-510e-ad40-272cb3962c8b', 'Unknown Podcast 4'],
+    ['bf99e8c3-1f97-558d-bc1d-a4bda04027f7', 'Unknown Podcast 5'],
+    ['fc815bcf-3639-5395-ba7d-fa217ec93d32', 'Unknown Podcast 6'],
+    ['121c26b0-33f8-5cb9-9e14-d706bd3f5db8', 'Unknown Podcast 7'],
+    ['7b7949ca-5019-5814-aa53-d4b14bd15a6d', 'Unknown Podcast 8'],
+    ['c39decf9-973e-564f-b741-0ad2985b3b1c', 'Unknown Podcast 9'],
+    ['c42a0900-c20e-59a2-a13b-c23b5c04e11f', 'Unknown Podcast 10'],
+    ['61676a69-5bab-57a9-8326-7fe68a572649', 'Unknown Podcast 11'],
+    ['69c634ad-afea-5826-ad9a-8e1f06d6470b', 'Unknown Podcast 12'],
+    ['7869bafd-2334-54a1-a76a-2c8f68f56828', 'Unknown Podcast 13'],
+    ['c989830b-49a1-572f-9f0e-0fec994a6d5a', 'Unknown Podcast 14']
   ]);
 
   constructor() {
@@ -104,7 +119,11 @@ class PodcastIndexService {
     } catch (error: any) {
       // Only log the first error for each GUID to reduce spam
       if (!this.cache.has(feedGuid)) {
-        console.warn(`Podcast Index API error for GUID ${feedGuid}:`, error.response?.status || error.message);
+        if (error.response?.status === 401) {
+          console.warn(`Podcast Index API authentication failed for GUID ${feedGuid}. Check your API credentials.`);
+        } else {
+          console.warn(`Podcast Index API error for GUID ${feedGuid}:`, error.response?.status || error.message);
+        }
       }
       
       // If API is unavailable, try fallback names
@@ -119,9 +138,17 @@ class PodcastIndexService {
         this.cache.set(feedGuid, fallbackInfo);
         return fallbackInfo;
       }
-      // Only warn once per GUID
+      // Only warn once per GUID and only for truly unknown GUIDs
       if (!this.cache.has(feedGuid)) {
-        console.warn('API unavailable and no fallback for GUID:', feedGuid);
+        console.warn(`No fallback name available for GUID: ${feedGuid}`);
+        // Create a generic fallback to prevent repeated errors
+        const genericInfo: PodcastInfo = {
+          id: 0,
+          title: `Unknown Podcast (${feedGuid.slice(0, 8)}...)`,
+          feedGuid: feedGuid
+        };
+        this.cache.set(feedGuid, genericInfo);
+        return genericInfo;
       }
     }
 

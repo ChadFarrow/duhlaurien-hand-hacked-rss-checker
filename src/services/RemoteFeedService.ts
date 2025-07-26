@@ -117,7 +117,17 @@ class RemoteFeedService {
 
     const feedUrl = this.knownFeeds.get(feedGuid);
     if (!feedUrl) {
-      console.warn(`No known feed URL for GUID: ${feedGuid}`);
+      // Only log once per GUID to reduce spam
+      if (!this.cache.has(feedGuid)) {
+        console.warn(`No known feed URL for GUID: ${feedGuid}`);
+        // Cache a null result to prevent repeated warnings
+        this.cache.set(feedGuid, {
+          guid: feedGuid,
+          title: 'Unknown Feed',
+          feedUrl: '',
+          error: 'No known feed URL'
+        });
+      }
       loadingStateService.setError(loadingKey, 'No known feed URL');
       return null;
     }
