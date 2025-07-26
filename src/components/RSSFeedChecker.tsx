@@ -295,11 +295,35 @@ const RSSFeedChecker: React.FC = () => {
     );
   };
 
-  // Get show artwork from RSS feed standard image element, fallback to latest episode image
-  const showArtwork = feedData?.rss?.channel?.image?.url || 
-                     feedData?.rss?.channel?.item?.[0]?.['itunes:image']?.$?.href ||
-                     feedData?.rss?.channel?.item?.[0]?.enclosure?.url?.replace(/\.(mp3|m4a|wav|ogg)$/i, '.jpg') ||
-                     'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
+  // Get show artwork from RSS feed with improved fallback logic
+  let showArtwork = '';
+  
+  if (feedData?.rss?.channel) {
+    // Debug: Log the iTunes image structure
+    if (feedData.rss.channel['itunes:image']) {
+      console.log('iTunes image structure:', feedData.rss.channel['itunes:image']);
+    }
+    
+    showArtwork = 
+      // 1. Try channel-level iTunes image (multiple formats)
+      feedData?.rss?.channel?.['itunes:image']?.$?.href ||
+      (feedData?.rss?.channel?.['itunes:image'] as any)?.['@_href'] ||
+      (feedData?.rss?.channel?.['itunes:image'] as any)?.href ||
+      // 2. Try standard RSS channel image
+      feedData?.rss?.channel?.image?.url ||
+      // 3. Try first episode iTunes image (multiple formats)
+      feedData?.rss?.channel?.item?.[0]?.['itunes:image']?.$?.href ||
+      (feedData?.rss?.channel?.item?.[0]?.['itunes:image'] as any)?.['@_href'] ||
+      (feedData?.rss?.channel?.item?.[0]?.['itunes:image'] as any)?.href ||
+      // 4. Try to derive image from episode audio URL
+      feedData?.rss?.channel?.item?.[0]?.enclosure?.url?.replace(/\.(mp3|m4a|wav|ogg)$/i, '.jpg') ||
+      // 5. Generic fallback
+      'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
+      
+    console.log('Selected artwork URL:', showArtwork);
+  } else {
+    showArtwork = 'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
+  }
 
 
   return (

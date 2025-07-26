@@ -84,9 +84,7 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
             .map(split => split.remoteItem!.feedGuid)
         ));
         
-        // Debug: Log value time splits and feed GUIDs
-        console.log('Value time splits found in episode:', valueTimeSplits);
-        console.log('Feed GUIDs to fetch:', feedGuids);
+
 
         // Get unique remote items for episode info (currently unused)
         // const remoteItems = valueTimeSplits
@@ -468,11 +466,6 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                   const valueTimeSplits = feedType === 'rss' ? 
                     valueTimeSplitService.getEpisodeValueTimeSplits(episode as RSSItem) : [];
                   
-                  // Debug: Log value time splits
-                  if (valueTimeSplits.length > 0) {
-                    console.log('Value time splits found:', valueTimeSplits);
-                  }
-                  
                   // Find all splits that fall within this chapter's time range
                   const chapterEndTime = index < chapters.chapters.length - 1 ? 
                     chapters.chapters[index + 1].startTime : 
@@ -482,11 +475,6 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                     // Check if split starts within this chapter's range
                     return split.startTime >= chapter.startTime && split.startTime < chapterEndTime;
                   });
-                  
-                  // Debug: Log matching splits for this chapter
-                  if (matchingSplits.length > 0) {
-                    console.log(`Chapter "${chapter.title}" has ${matchingSplits.length} matching splits:`, matchingSplits);
-                  }
 
                   return (
                     <div key={index} className="chapter-item">

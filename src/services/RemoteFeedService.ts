@@ -28,7 +28,18 @@ class RemoteFeedService {
     ['5a95f9d8-35e3-51f5-a269-ba1df36b4bd8', 'https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml'],
     ['671612fb-9039-5189-9d4b-0fd9df2093dd', 'https://feeds.rssblue.com/thats-the-spirit'],
     ['63fb0d8e-793f-5033-bbb4-39a836e3da76', 'https://feed.bowlafterbowl.com/demu/bowl-covers/feed.xml'],
-    ['d6b85f98-6d7a-5eca-b288-dafae4381a1d', 'https://music.behindthesch3m3s.com/wp-content/uploads/Street Clones/street_clones.xml']
+    ['d6b85f98-6d7a-5eca-b288-dafae4381a1d', 'https://music.behindthesch3m3s.com/wp-content/uploads/Street Clones/street_clones.xml'],
+    // Additional feed URLs for missing GUIDs
+    ['262a48c2-502d-5c09-add4-76a86056876d', 'https://music.behindthesch3m3s.com/wp-content/uploads/Rubber Factory Records/rubber_factory_records.xml'],
+    ['d8ffdade-d979-5c12-a0dc-96d0bba96a9d', 'https://music.behindthesch3m3s.com/wp-content/uploads/Longy/longy.xml'],
+    ['93e3c7fe-a851-5c4c-8955-6a04f0f44edc', 'https://music.behindthesch3m3s.com/wp-content/uploads/Abel James/abel_james.xml'],
+    ['8c8f0146-5ed0-5c41-978c-ddc7478de179', 'https://music.behindthesch3m3s.com/wp-content/uploads/Marina Osk/marina_osk.xml'],
+    ['20e98a05-7d72-5623-9882-6cf5a5aa0b19', 'https://music.behindthesch3m3s.com/wp-content/uploads/ABBESSE/abbesse.xml'],
+    ['38970258-bbe2-5f5f-8827-1641a256fe54', 'https://music.behindthesch3m3s.com/wp-content/uploads/CityBeach/citybeach.xml'],
+    ['1e7ed1fa-0456-5860-9b34-825d1335d8f8', 'https://music.behindthesch3m3s.com/wp-content/uploads/Rebel Hero/rebel_hero.xml'],
+    ['2514d117-8a84-5345-82e8-8ed7b940cf1f', 'https://music.behindthesch3m3s.com/wp-content/uploads/RO Shapiro/ro_shapiro.xml'],
+    ['4a156167-aea1-5bc3-9e7d-504477127f79', 'https://music.behindthesch3m3s.com/wp-content/uploads/The Greensands/the_greensands.xml'],
+    ['de032037-63e0-5c6b-820d-13d4319a2b19', 'https://music.behindthesch3m3s.com/wp-content/uploads/FM Rodeo/fm_rodeo.xml']
   ]);
 
   // Alternative CORS proxy services for better reliability
@@ -97,6 +108,97 @@ class RemoteFeedService {
       method: 'keysend',
       recipients: [
         { name: 'Heycitizen', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    // Add fallback value recipients for new GUIDs
+    this.fallbackValueRecipients.set('262a48c2-502d-5c09-add4-76a86056876d', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'Rubber Factory Records', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('d8ffdade-d979-5c12-a0dc-96d0bba96a9d', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'Longy', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('93e3c7fe-a851-5c4c-8955-6a04f0f44edc', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'Abel James', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('8c8f0146-5ed0-5c41-978c-ddc7478de179', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'Marina Osk', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('20e98a05-7d72-5623-9882-6cf5a5aa0b19', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'ABBESSE', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('38970258-bbe2-5f5f-8827-1641a256fe54', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'CityBeach', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('1e7ed1fa-0456-5860-9b34-825d1335d8f8', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'Rebel Hero', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('2514d117-8a84-5345-82e8-8ed7b940cf1f', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'R.O. Shapiro', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('4a156167-aea1-5bc3-9e7d-504477127f79', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'The Greensands', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+      ]
+    });
+    
+    this.fallbackValueRecipients.set('de032037-63e0-5c6b-820d-13d4319a2b19', {
+      type: 'lightning',
+      method: 'keysend',
+      recipients: [
+        { name: 'FM Rodeo', type: 'node', split: 90, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
         { name: 'Support', type: 'node', split: 10, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
       ]
     });
