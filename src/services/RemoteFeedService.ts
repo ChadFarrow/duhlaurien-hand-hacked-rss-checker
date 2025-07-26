@@ -1,6 +1,7 @@
 import { feedParserService } from './FeedParserService';
 import { valueRecipientService, ValueBlock } from './ValueRecipientService';
 import { loadingStateService } from './LoadingStateService';
+import { podcastIndexService } from './PodcastIndexService';
 
 interface RemoteFeedInfo {
   guid: string;
@@ -209,6 +210,26 @@ class RemoteFeedService {
     return Date.now() - info.lastFetched.getTime() < this.CACHE_DURATION;
   }
 
+  private async lookupFeedUrlByGuid(feedGuid: string): Promise<string | null> {
+    try {
+      console.log(`Looking up feed URL for GUID: ${feedGuid} via Podcast Index API...`);
+      const podcastInfo = await podcastIndexService.getPodcastByGuid(feedGuid);
+      
+      if (podcastInfo && podcastInfo.feedUrl) {
+        console.log(`Found feed URL for ${feedGuid}: ${podcastInfo.feedUrl}`);
+        // Cache the discovered feed URL for future use
+        this.knownFeeds.set(feedGuid, podcastInfo.feedUrl);
+        return podcastInfo.feedUrl;
+      }
+      
+      console.log(`No feed URL found for GUID: ${feedGuid}`);
+      return null;
+    } catch (error) {
+      console.warn(`Failed to lookup feed URL for GUID ${feedGuid}:`, error);
+      return null;
+    }
+  }
+
   async getRemoteFeedValueRecipients(feedGuid: string): Promise<ValueBlock | null> {
     const loadingKey = `remote-feed-${feedGuid}`;
     
@@ -218,7 +239,16 @@ class RemoteFeedService {
       return cached.valueRecipients || null;
     }
 
-    const feedUrl = this.knownFeeds.get(feedGuid);
+    let feedUrl = this.knownFeeds.get(feedGuid);
+    
+    // If no known feed URL, try to lookup via Podcast Index API
+    if (!feedUrl) {
+      const apiFeedUrl = await this.lookupFeedUrlByGuid(feedGuid);
+      if (apiFeedUrl) {
+        feedUrl = apiFeedUrl;
+      }
+    }
+    
     if (!feedUrl) {
       // Only log once per GUID to reduce spam
       if (!this.cache.has(feedGuid)) {

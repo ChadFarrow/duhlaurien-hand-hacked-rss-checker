@@ -7,6 +7,7 @@ interface PodcastInfo {
   author?: string;
   image?: string;
   feedGuid?: string;
+  feedUrl?: string;
 }
 
 interface CachedPodcastInfo {
@@ -213,7 +214,8 @@ class PodcastIndexService {
           title: feed.title,
           author: feed.author,
           image: feed.image,
-          feedGuid: feedGuid
+          feedGuid: feedGuid,
+          feedUrl: feed.url
         };
         
         // Cache the result with metadata
