@@ -208,15 +208,18 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
     }
   };
 
-  const formatDuration = (duration?: string): string => {
+  const formatDuration = (duration?: string | number): string => {
     if (!duration) return '';
     
-    if (duration.includes(':')) {
-      return duration;
+    // Convert to string if it's a number
+    const durationStr = String(duration);
+    
+    if (durationStr.includes(':')) {
+      return durationStr;
     }
     
-    const seconds = parseInt(duration);
-    if (isNaN(seconds)) return duration;
+    const seconds = parseInt(durationStr);
+    if (isNaN(seconds)) return durationStr;
     
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -228,16 +231,19 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const parseDurationToSeconds = (duration: string): number => {
+  const parseDurationToSeconds = (duration: string | number): number => {
     if (!duration) return 0;
     
+    // Convert to string if it's a number
+    const durationStr = String(duration);
+    
     // If already in seconds
-    if (!duration.includes(':')) {
-      return parseInt(duration) || 0;
+    if (!durationStr.includes(':')) {
+      return parseInt(durationStr) || 0;
     }
     
     // Parse HH:MM:SS or MM:SS format
-    const parts = duration.split(':').map(part => parseInt(part) || 0);
+    const parts = durationStr.split(':').map(part => parseInt(part) || 0);
     
     if (parts.length === 3) {
       // HH:MM:SS
