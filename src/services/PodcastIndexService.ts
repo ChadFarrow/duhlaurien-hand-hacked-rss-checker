@@ -15,11 +15,24 @@ interface EpisodeInfo {
   feedGuid: string;
 }
 
+interface RetryConfig {
+  maxAttempts: number;
+  initialDelay: number;
+  maxDelay: number;
+  backoffMultiplier: number;
+}
+
 class PodcastIndexService {
   private apiKey: string;
   private apiSecret: string;
   private baseUrl = 'https://api.podcastindex.org/api/1.0';
   private cache = new Map<string, PodcastInfo>();
+  private retryConfig: RetryConfig = {
+    maxAttempts: 3,
+    initialDelay: 1000, // 1 second
+    maxDelay: 10000, // 10 seconds
+    backoffMultiplier: 2
+  };
   
   // Fallback podcast names for common GUIDs when API is unavailable
   private fallbackNames = new Map<string, string>([
@@ -91,6 +104,50 @@ class PodcastIndexService {
     };
   }
 
+  private async sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private async fetchWithRetry<T>(
+    url: string, 
+    config: any, 
+    context: string
+  ): Promise<T | null> {
+    let lastError: any;
+    
+    for (let attempt = 1; attempt <= this.retryConfig.maxAttempts; attempt++) {
+      try {
+        const response = await axios.get(url, config);
+        return response.data;
+      } catch (error: any) {
+        lastError = error;
+        
+        // Don't retry on 401 (auth errors) or 404 (not found)
+        if (error.response?.status === 401 || error.response?.status === 404) {
+          throw error;
+        }
+        
+        // Don't retry on client errors (4xx) except 429 (rate limit)
+        if (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429) {
+          throw error;
+        }
+        
+        // Calculate delay with exponential backoff
+        const delay = Math.min(
+          this.retryConfig.initialDelay * Math.pow(this.retryConfig.backoffMultiplier, attempt - 1),
+          this.retryConfig.maxDelay
+        );
+        
+        if (attempt < this.retryConfig.maxAttempts) {
+          console.log(`${context}: Attempt ${attempt} failed, retrying in ${delay}ms...`);
+          await this.sleep(delay);
+        }
+      }
+    }
+    
+    throw lastError;
+  }
+
   async getPodcastByGuid(feedGuid: string): Promise<PodcastInfo | null> {
     // Check cache first
     if (this.cache.has(feedGuid)) {
@@ -98,13 +155,17 @@ class PodcastIndexService {
     }
 
     try {
-      const response = await axios.get(`${this.baseUrl}/podcasts/byguid`, {
-        params: { guid: feedGuid },
-        headers: await this.getAuthHeaders()
-      });
+      const data = await this.fetchWithRetry<any>(
+        `${this.baseUrl}/podcasts/byguid`,
+        {
+          params: { guid: feedGuid },
+          headers: await this.getAuthHeaders()
+        },
+        `Podcast fetch for GUID ${feedGuid}`
+      );
 
-      if (response.data.status && response.data.feed) {
-        const feed = response.data.feed;
+      if (data?.status && data?.feed) {
+        const feed = data.feed;
         const podcastInfo: PodcastInfo = {
           id: feed.id,
           title: feed.title,
@@ -123,7 +184,7 @@ class PodcastIndexService {
         if (error.response?.status === 401) {
           console.warn(`Podcast Index API authentication failed for GUID ${feedGuid}. Check your API credentials.`);
         } else {
-          console.warn(`Podcast Index API error for GUID ${feedGuid}:`, error.response?.status || error.message);
+          console.warn(`Podcast Index API error for GUID ${feedGuid} after ${this.retryConfig.maxAttempts} attempts:`, error.response?.status || error.message);
         }
       }
       
@@ -158,16 +219,20 @@ class PodcastIndexService {
 
   async getEpisodeByGuid(feedGuid: string, itemGuid: string): Promise<EpisodeInfo | null> {
     try {
-      const response = await axios.get(`${this.baseUrl}/episodes/byguid`, {
-        params: { 
-          guid: itemGuid,
-          feedguid: feedGuid 
+      const data = await this.fetchWithRetry<any>(
+        `${this.baseUrl}/episodes/byguid`,
+        {
+          params: { 
+            guid: itemGuid,
+            feedguid: feedGuid 
+          },
+          headers: await this.getAuthHeaders()
         },
-        headers: await this.getAuthHeaders()
-      });
+        `Episode fetch for item GUID ${itemGuid}`
+      );
 
-      if (response.data.status && response.data.episode) {
-        const episode = response.data.episode;
+      if (data?.status && data?.episode) {
+        const episode = data.episode;
         return {
           id: episode.id,
           title: episode.title,
@@ -176,7 +241,7 @@ class PodcastIndexService {
         };
       }
     } catch (error: any) {
-      console.warn(`Episode fetch error for item GUID ${itemGuid}:`, error.response?.status || error.message);
+      console.warn(`Episode fetch error for item GUID ${itemGuid} after ${this.retryConfig.maxAttempts} attempts:`, error.response?.status || error.message);
     }
 
     return null;

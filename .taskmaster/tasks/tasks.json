@@ -311,16 +311,83 @@
           "Document CORS workarounds and limitations",
           "Add configuration options for CORS proxy selection"
         ]
+      },
+      {
+        "id": 14,
+        "title": "Fix Episode Routing ID Mismatch",
+        "description": "Fixed episode routing issue where EpisodeList generated IDs like 'episode-95-0' but EpisodeDetailPage looked for 'episode-95'. Updated EpisodeDetailPage to use consistent ID generation logic matching EpisodeList format.",
+        "priority": "high",
+        "estimatedTime": "1-2 hours",
+        "dependencies": [
+          6
+        ],
+        "status": "done",
+        "file": "014_episode_routing_id_mismatch.md",
+        "requirements": [
+          "Identify ID generation mismatch between EpisodeList and EpisodeDetailPage",
+          "Update EpisodeDetailPage lookup logic to match EpisodeList ID format",
+          "Ensure episode-95-0 URLs work correctly",
+          "Fix episode not found errors in routing",
+          "Test episode navigation with various episode numbers",
+          "Verify consistent ID generation across components",
+          "Update episode lookup to use episode-{number}-{index} format"
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Deploy to Vercel with API Credentials",
+        "description": "Deploy the application to Vercel and configure environment variables for Podcast Index API credentials to resolve 401 authentication errors in production.",
+        "priority": "high",
+        "estimatedTime": "2-3 hours",
+        "dependencies": [
+          11
+        ],
+        "status": "done",
+        "file": "015_vercel_deployment_api.md",
+        "requirements": [
+          "Deploy application to Vercel using Vercel CLI",
+          "Configure environment variables for production deployment",
+          "Add REACT_APP_PODCAST_INDEX_API_KEY to Vercel environment",
+          "Add REACT_APP_PODCAST_INDEX_API_SECRET to Vercel environment",
+          "Configure environment variables for all environments (production, preview, development)",
+          "Test API authentication in production deployment",
+          "Verify 401 errors are resolved in live deployment",
+          "Ensure proper API credential injection in build process",
+          "Test episode routing functionality in production",
+          "Verify all features work correctly in live environment"
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Add Project Image and Update Metadata",
+        "description": "Add Homegrown Hits episode 54 image as project image and update project metadata for professional branding and social media sharing.",
+        "priority": "medium",
+        "estimatedTime": "1-2 hours",
+        "dependencies": [],
+        "status": "done",
+        "file": "016_project_image_metadata.md",
+        "requirements": [
+          "Download Homegrown Hits episode 54 image from feed",
+          "Add image to public/project-image.jpg",
+          "Update package.json with proper project metadata",
+          "Add Open Graph meta tags for social sharing",
+          "Add Twitter Card meta tags for Twitter sharing",
+          "Update HTML title and description",
+          "Create comprehensive README with live demo link",
+          "Add proper project branding and acknowledgments",
+          "Update project keywords and description",
+          "Configure social media preview images"
+        ]
       }
     ],
     "metadata": {
       "projectName": "duhlaurien-hand-hacked-rss-checker",
-      "totalTasks": 13,
-      "highPriority": 7,
-      "mediumPriority": 4,
+      "totalTasks": 16,
+      "highPriority": 9,
+      "mediumPriority": 5,
       "lowPriority": 1,
       "criticalPriority": 1,
-      "readyToStart": 2,
+      "readyToStart": 1,
       "inProgress": 0,
       "blocked": 0,
       "lastUpdated": "2025-07-25",
