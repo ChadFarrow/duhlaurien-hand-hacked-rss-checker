@@ -74,7 +74,19 @@ class PodcastIndexService {
     ['69c634ad-afea-5826-ad9a-8e1f06d6470b', 'Unknown Podcast 12'],
     ['7869bafd-2334-54a1-a76a-2c8f68f56828', 'Unknown Podcast 13'],
     ['c989830b-49a1-572f-9f0e-0fec994a6d5a', 'Unknown Podcast 14'],
-    ['3074902b-b2dc-5877-bfc3-30f5df0fbe6a', 'Unknown Podcast 15']
+    ['3074902b-b2dc-5877-bfc3-30f5df0fbe6a', 'Unknown Podcast 15'],
+    // Additional fallback names for missing GUIDs from console errors
+    ['ef5db97e-a5f3-5375-96a5-ea4749b3e8c3', 'Unknown Podcast 16'],
+    ['8ec5e1b3-837c-5c0e-a335-a05034c14af3', 'Unknown Podcast 17'],
+    ['c25bce1f-77db-56b2-a125-565d9701f2e7', 'Unknown Podcast 18'],
+    ['910874e0-86cc-5d95-9589-a9948c32880a', 'Unknown Podcast 19'],
+    ['63d0caef-4b57-576e-8b7d-150082b21775', 'Unknown Podcast 20'],
+    ['262a48c2-502d-5c09-add4-76a86056876d', 'Rubber Factory Records'],
+    ['87a37a97-29a2-5ae7-a581-ede34b35a200', 'Unknown Podcast 21'],
+    ['6ef5bcf5-4dfe-5bf3-9e2c-0af6b2a78933', 'Unknown Podcast 22'],
+    ['469b403f-db2d-574c-9db9-96dbb3f6561c', 'Unknown Podcast 23'],
+    ['7a77edc0-15a5-5d27-8448-115065ca04cf', 'Unknown Podcast 24'],
+    ['930fe2d8-ea6f-5370-a571-1d592a6f40ac', 'Unknown Podcast 25']
   ]);
 
   constructor() {
