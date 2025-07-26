@@ -30,10 +30,13 @@ const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, feedType }) => {
       const episodeNumberMatch = title.match(/Episode\s+(\d+)/i);
       const episodeNumber = episodeNumberMatch ? episodeNumberMatch[1] : (index + 1).toString();
       
+      // Create a unique ID that includes both episode number and index to prevent duplicates
+      const uniqueId = feedType === 'rss' 
+        ? (episode as RSSItem).guid?._ || `episode-${episodeNumber}-${index}`
+        : (episode as AtomEntry).id || `episode-${episodeNumber}-${index}`;
+      
       return {
-        id: feedType === 'rss' 
-          ? (episode as RSSItem).guid?._ || `episode-${episodeNumber}`
-          : (episode as AtomEntry).id || `episode-${episodeNumber}`,
+        id: uniqueId,
         title: title,
         description: feedType === 'rss' 
           ? (episode as RSSItem).description 
