@@ -15,7 +15,8 @@ interface RemoteFeedInfo {
 
 class RemoteFeedService {
   private cache = new Map<string, RemoteFeedInfo>();
-  private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+  // Short cache duration for feed validation - ensures fresh data for checking
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for feed validation
 
   // Known remote feed URLs for faster lookups
   private readonly knownFeeds = new Map<string, string>([
@@ -585,6 +586,13 @@ class RemoteFeedService {
     } else {
       this.cache.clear();
     }
+  }
+
+  // Force refresh for feed validation - bypass cache
+  async getRemoteFeedValueRecipientsFresh(feedGuid: string): Promise<ValueBlock | null> {
+    // Clear any existing cache for this GUID to force fresh fetch
+    this.cache.delete(feedGuid);
+    return this.getRemoteFeedValueRecipients(feedGuid);
   }
 
   // Get cache info for debugging

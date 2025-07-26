@@ -36,8 +36,9 @@ class PodcastIndexService {
   private baseUrl = 'https://api.podcastindex.org/api/1.0';
   private cache = new Map<string, CachedPodcastInfo>();
   private rssChannelCache = new Map<string, { channel: RSSChannel; timestamp: number }>();
-  private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
-  private readonly RSS_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for RSS data
+  // Short cache durations for feed validation - ensures fresh data for checking
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for feed validation
+  private readonly RSS_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes for RSS data
   private retryConfig: RetryConfig = {
     maxAttempts: 3,
     initialDelay: 1000, // 1 second
@@ -365,6 +366,14 @@ class PodcastIndexService {
       this.rssChannelCache.clear();
       console.log('Cleared all podcast cache');
     }
+  }
+
+  // Force refresh for feed validation - bypass cache
+  async getPodcastByGuidFresh(feedGuid: string, rssChannel?: RSSChannel): Promise<PodcastInfo | null> {
+    // Clear any existing cache for this GUID to force fresh fetch
+    this.cache.delete(feedGuid);
+    this.rssChannelCache.delete(feedGuid);
+    return this.getPodcastByGuid(feedGuid, rssChannel);
   }
 
   getCacheStats(): { 
