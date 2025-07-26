@@ -286,22 +286,47 @@
           "Check for TypeScript compilation errors",
           "Ensure all required environment variables are set"
         ]
+      },
+      {
+        "id": 13,
+        "title": "Fix CORS Issues with Remote Feed Fetching",
+        "description": "Resolve CORS errors when fetching remote feeds and improve error handling for value recipient fallbacks to provide better user experience.",
+        "priority": "medium",
+        "estimatedTime": "2-3 hours",
+        "dependencies": [],
+        "status": "done",
+        "file": "013_fix_cors_remote_feeds.md",
+        "requirements": [
+          "Investigate CORS errors with api.allorigins.win service",
+          "Implement alternative CORS proxy solutions",
+          "Add retry logic for failed remote feed requests",
+          "Improve error handling for 429 rate limit errors",
+          "Add user-friendly error messages for CORS failures",
+          "Implement local caching for remote feed data",
+          "Add fallback mechanisms when remote feeds are unavailable",
+          "Optimize value recipient fallback logic",
+          "Add loading states for remote feed fetching",
+          "Implement progressive enhancement for remote features",
+          "Test with various remote feed sources",
+          "Document CORS workarounds and limitations",
+          "Add configuration options for CORS proxy selection"
+        ]
       }
     ],
     "metadata": {
       "projectName": "duhlaurien-hand-hacked-rss-checker",
-      "totalTasks": 12,
+      "totalTasks": 13,
       "highPriority": 7,
-      "mediumPriority": 3,
+      "mediumPriority": 4,
       "lowPriority": 1,
       "criticalPriority": 1,
-      "readyToStart": 4,
+      "readyToStart": 2,
       "inProgress": 0,
       "blocked": 0,
       "lastUpdated": "2025-07-25",
       "created": "2025-07-25T11:42:59.146Z",
       "description": "Tasks for podcast episode viewer application",
-      "updated": "2025-07-25T21:44:18.118Z"
+      "updated": "2025-07-25T23:29:48.726Z"
     }
   }
 }

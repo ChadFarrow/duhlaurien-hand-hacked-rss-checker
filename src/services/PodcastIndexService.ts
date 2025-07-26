@@ -40,9 +40,16 @@ class PodcastIndexService {
     this.apiKey = process.env.REACT_APP_PODCAST_INDEX_API_KEY || '';
     this.apiSecret = process.env.REACT_APP_PODCAST_INDEX_API_SECRET || '';
     
-    // Warn if credentials are missing
+    // Provide clear instructions if credentials are missing
     if (!this.apiKey || !this.apiSecret) {
-      console.warn('Podcast Index API credentials not found in environment variables');
+      console.warn('Podcast Index API credentials not found. To fix this:');
+      console.warn('1. Go to https://podcastindex.org/developer to get API credentials');
+      console.warn('2. Create a .env.local file in the project root');
+      console.warn('3. Add these lines to .env.local:');
+      console.warn('   REACT_APP_PODCAST_INDEX_API_KEY=your_api_key_here');
+      console.warn('   REACT_APP_PODCAST_INDEX_API_SECRET=your_api_secret_here');
+      console.warn('4. Restart the development server');
+      console.warn('The app will continue to work with fallback names for known podcasts.');
     }
   }
 
@@ -95,7 +102,10 @@ class PodcastIndexService {
         return podcastInfo;
       }
     } catch (error: any) {
-      console.warn(`Podcast Index API error for GUID ${feedGuid}:`, error.response?.status || error.message);
+      // Only log the first error for each GUID to reduce spam
+      if (!this.cache.has(feedGuid)) {
+        console.warn(`Podcast Index API error for GUID ${feedGuid}:`, error.response?.status || error.message);
+      }
       
       // If API is unavailable, try fallback names
       const fallbackName = this.fallbackNames.get(feedGuid);
@@ -109,7 +119,10 @@ class PodcastIndexService {
         this.cache.set(feedGuid, fallbackInfo);
         return fallbackInfo;
       }
-      console.warn('API unavailable and no fallback for GUID:', feedGuid);
+      // Only warn once per GUID
+      if (!this.cache.has(feedGuid)) {
+        console.warn('API unavailable and no fallback for GUID:', feedGuid);
+      }
     }
 
     return null;

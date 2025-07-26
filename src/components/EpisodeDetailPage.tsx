@@ -82,14 +82,14 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
             .map(split => split.remoteItem!.feedGuid)
         ));
 
-        // Get unique remote items for episode info
-        const remoteItems = valueTimeSplits
-          .filter(split => split.remoteItem?.feedGuid && split.remoteItem?.itemGuid)
-          .map(split => ({
-            feedGuid: split.remoteItem!.feedGuid,
-            itemGuid: split.remoteItem!.itemGuid!,
-            key: `${split.remoteItem!.feedGuid}:${split.remoteItem!.itemGuid}`
-          }));
+        // Get unique remote items for episode info (currently unused)
+        // const remoteItems = valueTimeSplits
+        //   .filter(split => split.remoteItem?.feedGuid && split.remoteItem?.itemGuid)
+        //   .map(split => ({
+        //     feedGuid: split.remoteItem!.feedGuid,
+        //     itemGuid: split.remoteItem!.itemGuid!,
+        //     key: `${split.remoteItem!.feedGuid}:${split.remoteItem!.itemGuid}`
+        //   }));
 
         try {
           // Fetch podcast names
@@ -475,10 +475,22 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                       <div className="chapter-content">
                         <div className="chapter-artwork-container">
                           {chapter.img ? (
-                            <img src={chapter.img} alt={chapter.title} className="chapter-artwork" />
-                          ) : (
-                            <div className="chapter-artwork" style={{background: '#8B0000'}}></div>
-                          )}
+                            <img 
+                              src={chapter.img} 
+                              alt={chapter.title} 
+                              className="chapter-artwork"
+                              onError={(e) => {
+                                // Hide broken images and show fallback
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className={`chapter-artwork ${chapter.img ? 'hidden' : ''}`} 
+                            style={{background: '#8B0000'}}
+                          ></div>
                         </div>
                         
                         <div className="chapter-payment-splits">

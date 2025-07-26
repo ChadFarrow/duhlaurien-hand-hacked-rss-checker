@@ -263,6 +263,10 @@
   position: relative;
 }
 
+.chapter-artwork.hidden {
+  display: none;
+}
+
 .chapter-payment-splits {
   flex: 0 0 70%;
   padding: 12px;
