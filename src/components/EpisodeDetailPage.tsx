@@ -51,18 +51,32 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
     const fetchChapters = async () => {
       if (feedType === 'rss' && episode) {
         const rssItem = episode as RSSItem;
+        
+        // Debug: Log the episode structure to see what chapter data is available
+        console.log('Episode data for chapter parsing:', {
+          'podcast:chapters': rssItem['podcast:chapters'],
+          title: rssItem.title,
+          guid: rssItem.guid
+        });
+        
         const chaptersUrl = (rssItem['podcast:chapters'] as any)?.['@_url'] || rssItem['podcast:chapters']?.$?.url;
+        
+        console.log('Extracted chapters URL:', chaptersUrl);
         
         if (chaptersUrl) {
           setLoadingChapters(true);
+          console.log('Fetching chapters from:', chaptersUrl);
           try {
             const chaptersData = await chapterService.fetchChapters(chaptersUrl);
+            console.log('Chapters fetched successfully:', chaptersData);
             setChapters(chaptersData);
           } catch (error) {
             console.error('Failed to fetch chapters:', error);
           } finally {
             setLoadingChapters(false);
           }
+        } else {
+          console.log('No chapters URL found in episode data');
         }
       }
     };

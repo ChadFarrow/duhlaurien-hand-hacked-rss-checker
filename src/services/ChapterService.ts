@@ -20,31 +20,105 @@ export interface ChaptersData {
 }
 
 class ChapterService {
+  // CORS proxy services for external chapter files
+  private corsProxies = [
+    'https://corsproxy.io/?',
+    'https://api.codetabs.com/v1/proxy?quest=',
+    'https://proxy.cors.sh/',
+    'https://thingproxy.freeboard.io/fetch/',
+    'https://api.allorigins.win/get?url='
+  ];
+
   async fetchChapters(chaptersUrl: string): Promise<ChaptersData | null> {
     try {
-      const response = await fetch(chaptersUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch chapters: ${response.status}`);
-      }
-
-      const contentType = response.headers.get('content-type') || '';
+      // Try direct fetch first
+      let response: Response;
+      let responseText: string = '';
       
+      try {
+        response = await fetch(chaptersUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type') || '';
+        responseText = await response.text();
+        
+        return await this.parseChapterContent(responseText, contentType);
+      } catch (directError) {
+        console.log('Direct chapter fetch failed, trying CORS proxies...', directError);
+      }
+      
+      // If direct fetch fails, try CORS proxies
+      for (let i = 0; i < this.corsProxies.length; i++) {
+        const proxyBase = this.corsProxies[i];
+        console.log(`Trying chapter proxy ${i + 1}/${this.corsProxies.length}...`);
+        
+        try {
+          let proxyUrl: string;
+          if (proxyBase.includes('allorigins.win')) {
+            proxyUrl = `${proxyBase}${encodeURIComponent(chaptersUrl)}`;
+          } else if (proxyBase.includes('codetabs.com')) {
+            proxyUrl = `${proxyBase}${encodeURIComponent(chaptersUrl)}`;
+          } else if (proxyBase.includes('corsproxy.io')) {
+            proxyUrl = `${proxyBase}${encodeURIComponent(chaptersUrl)}`;
+          } else if (proxyBase.includes('cors.sh')) {
+            proxyUrl = `${proxyBase}${chaptersUrl}`;
+          } else if (proxyBase.includes('thingproxy.freeboard.io')) {
+            proxyUrl = `${proxyBase}${chaptersUrl}`;
+          } else {
+            proxyUrl = `${proxyBase}${chaptersUrl}`;
+          }
+          
+          response = await fetch(proxyUrl, { timeout: 10000 } as any);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          
+          // Parse response based on proxy service format
+          if (proxyBase.includes('allorigins.win')) {
+            const data = await response.json();
+            responseText = data.contents;
+          } else {
+            responseText = await response.text();
+          }
+          
+          console.log(`Successfully fetched chapters via proxy ${i + 1}`);
+          return await this.parseChapterContent(responseText, '');
+          
+        } catch (proxyError) {
+          console.log(`Chapter proxy ${i + 1} failed:`, proxyError);
+          if (i === this.corsProxies.length - 1) {
+            throw new Error('All chapter proxy attempts failed');
+          }
+        }
+      }
+      
+      throw new Error('Failed to fetch chapters from any source');
+    } catch (error) {
+      console.error('Error fetching chapters:', error);
+      return null;
+    }
+  }
+
+  private async parseChapterContent(content: string, contentType: string): Promise<ChaptersData | null> {
+    try {
       if (contentType.includes('application/json')) {
-        return await this.parseJsonChapters(await response.json());
+        return await this.parseJsonChapters(JSON.parse(content));
       } else if (contentType.includes('text/vtt')) {
-        return await this.parseVttChapters(await response.text());
+        return await this.parseVttChapters(content);
       } else {
         // Try to parse as JSON first, then VTT
-        const text = await response.text();
         try {
-          const json = JSON.parse(text);
+          const json = JSON.parse(content);
           return await this.parseJsonChapters(json);
         } catch {
-          return await this.parseVttChapters(text);
+          return await this.parseVttChapters(content);
         }
       }
     } catch (error) {
-      console.error('Error fetching chapters:', error);
+      console.error('Error parsing chapter content:', error);
       return null;
     }
   }
