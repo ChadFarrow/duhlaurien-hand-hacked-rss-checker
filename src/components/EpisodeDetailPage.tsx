@@ -429,6 +429,16 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                   const startTime = chapterService.formatTime(track.startTime);
                   const endTime = nextChapter ? chapterService.formatTime(nextChapter.startTime) : '';
                   
+                  // Get value time splits for this track if available
+                  const valueTimeSplits = feedType === 'rss' ? 
+                    valueTimeSplitService.getEpisodeValueTimeSplits(episode as RSSItem) : [];
+                  
+                  // Find all splits that fall within this track's time range
+                  const trackEndTime = nextChapter ? nextChapter.startTime : Infinity;
+                  const matchingSplits = valueTimeSplits.filter(split => {
+                    return split.startTime >= track.startTime && split.startTime < trackEndTime;
+                  });
+                  
                   return (
                     <div key={index} className="track-item">
                       <div className="track-info">
@@ -436,6 +446,49 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                         <div className="track-time">
                           {startTime}{endTime && ` - ${endTime}`}
                         </div>
+                        {/* Value Recipients for this track */}
+                        {matchingSplits.length > 0 && (
+                          <div className="track-value-recipients">
+                            {matchingSplits.map((split, splitIndex) => {
+                              const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
+                              const hostPercentage = 100 - split.remotePercentage;
+                              const remoteValueBlock = remoteValueRecipients.get(split.remoteItem?.feedGuid || '');
+                              const podcastTitle = podcastNames.get(split.remoteItem?.feedGuid || '') || 'Remote Podcast';
+                              
+                              return (
+                                <div key={splitIndex} className="track-split-info">
+                                  {/* Remote Recipients */}
+                                  {split.remoteItem && remoteValueBlock && remoteValueBlock.recipients.length > 0 && (
+                                    <div className="track-remote-recipients">
+                                      <span className="track-podcast-title">{podcastTitle} ({split.remotePercentage}%):</span>
+                                      {remoteValueBlock.recipients
+                                        .sort((a, b) => b.split - a.split)
+                                        .map((recipient, idx) => (
+                                          <span key={idx} className="track-recipient">
+                                            {recipient.name} ({(split.remotePercentage * recipient.split / 100).toFixed(1)}%)
+                                          </span>
+                                        ))}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Hosts */}
+                                  {mainValueBlock && mainValueBlock.recipients.length > 0 && (
+                                    <div className="track-host-recipients">
+                                      <span className="track-podcast-title">Hosts ({hostPercentage}%):</span>
+                                      {mainValueBlock.recipients
+                                        .sort((a, b) => b.split - a.split)
+                                        .map((recipient, idx) => (
+                                          <span key={idx} className="track-recipient">
+                                            {recipient.name} ({(hostPercentage * recipient.split / 100).toFixed(1)}%)
+                                          </span>
+                                        ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                       {track.img && (
                         <img src={track.img} alt={track.title} className="track-image" />
