@@ -378,6 +378,28 @@
           "Update project keywords and description",
           "Configure social media preview images"
         ]
+      },
+      {
+        "id": 17,
+        "title": "Fix URL Encoding and Add Missing Fallback Names",
+        "description": "Fixed URL encoding for feed URLs with spaces and added missing fallback names for GUIDs causing 'No fallback available' errors",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Add Value Recipient Information to Track Listing",
+        "description": "Added value recipient display to Track Listing section to ensure all artists get proper payment attribution. Now both Track Listing and Chapters sections show complete value recipient information.",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
       }
     ],
     "metadata": {
@@ -393,7 +415,7 @@
       "lastUpdated": "2025-07-25",
       "created": "2025-07-25T11:42:59.146Z",
       "description": "Tasks for podcast episode viewer application",
-      "updated": "2025-07-25T23:29:48.726Z"
+      "updated": "2025-07-26T02:23:09.154Z"
     }
   }
 }
