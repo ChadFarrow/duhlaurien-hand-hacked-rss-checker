@@ -392,35 +392,39 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
           />
         </div>
 
-        {/* Track Listing with Times */}
         {chapters && chapters.chapters.length > 0 && (
           <div className="episode-section">
-            <h2>Track Listing</h2>
+            <h2>Track Listing ({chapters.chapters.length} total chapters)</h2>
             <div className="track-listing">
-              {chapters.chapters
-                .filter(chapter => {
-                  // Filter to music tracks - exclude segments like "Value for Value", "Boostagrams", etc.
-                  const title = chapter.title.toLowerCase();
-                  return !title.includes('value') && 
-                         !title.includes('boostagram') && 
-                         !title.includes('hit these') &&
-                         !title.includes('what do you desire') &&
-                         !title.includes('decentralize') &&
-                         !title.includes('new to demu') &&
-                         !title.includes('matt the tall') &&
-                         !title.includes('frankiepaint') &&
-                         !title.includes('buttheart') &&
-                         !title.includes('netned') &&
-                         !title.includes('(213)') &&
-                         !title.includes('episode') &&
-                         !title.includes('tiddicate') &&
-                         !title.includes('hgh ') &&
-                         !title.includes('in the hitter') &&
-                         !title.includes('07-24-25') &&
-                         !title.includes('live') &&
-                         !title.includes('homegrown hits');
-                })
-                .map((track, index) => {
+              {(() => {
+                const allChapters = chapters.chapters;
+                const filteredChapters = chapters.chapters
+                  .filter(chapter => {
+                    // Filter to music tracks - exclude segments like "Value for Value", "Boostagrams", etc.
+                    const title = chapter.title.toLowerCase();
+                    return !title.includes('value') && 
+                           !title.includes('boostagram') && 
+                           !title.includes('hit these') &&
+                           !title.includes('what do you desire') &&
+                           !title.includes('decentralize') &&
+                           !title.includes('new to demu') &&
+                           !title.includes('matt the tall') &&
+                           !title.includes('frankiepaint') &&
+                           !title.includes('buttheart') &&
+                           !title.includes('netned') &&
+                           !title.includes('(213)') &&
+                           !title.includes('tiddicate') &&
+                           !title.includes('hgh ') &&
+                           !title.includes('in the hitter') &&
+                           !title.includes('07-24-25') &&
+                           !title.includes('live') &&
+                           !title.includes('homegrown hits');
+                  });
+                
+                // Debug: 29 total chapters filtered to 11 tracks
+                
+                return filteredChapters;
+              })().map((track, index) => {
                   // Find the next chapter (any type) after this track's start time
                   const nextChapter = chapters.chapters.find(chapter => 
                     chapter.startTime > track.startTime
@@ -435,9 +439,11 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                   
                   // Find all splits that fall within this track's time range
                   const trackEndTime = nextChapter ? nextChapter.startTime : Infinity;
-                  const matchingSplits = valueTimeSplits.filter(split => {
-                    return split.startTime >= track.startTime && split.startTime < trackEndTime;
-                  });
+                  const matchingSplits = valueTimeSplitService.getSplitsForTimeRange(
+                    valueTimeSplits,
+                    track.startTime,
+                    trackEndTime
+                  );
                   
                   return (
                     <div key={index} className="track-item">
@@ -447,9 +453,10 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                           {startTime}{endTime && ` - ${endTime}`}
                         </div>
                         {/* Value Recipients for this track */}
-                        {matchingSplits.length > 0 && (
-                          <div className="track-value-recipients">
-                            {matchingSplits.map((split, splitIndex) => {
+                        <div className="track-value-recipients">
+                          {matchingSplits.length > 0 ? (
+                            // Show time-specific splits when they exist
+                            matchingSplits.map((split, splitIndex) => {
                               const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
                               const hostPercentage = 100 - split.remotePercentage;
                               const remoteValueBlock = remoteValueRecipients.get(split.remoteItem?.feedGuid || '');
@@ -486,9 +493,37 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                   )}
                                 </div>
                               );
-                            })}
-                          </div>
-                        )}
+                            })
+                          ) : (
+                            // Show episode-level value recipients when no time splits exist
+                            (() => {
+                              const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
+                              // Check if episode has value recipients
+                              if (mainValueBlock && mainValueBlock.recipients.length > 0) {
+                                return (
+                                  <div className="track-episode-recipients">
+                                    <span className="track-podcast-title">Episode Recipients:</span>
+                                    {mainValueBlock.recipients
+                                      .sort((a, b) => b.split - a.split)
+                                      .map((recipient, idx) => (
+                                        <span key={idx} className="track-recipient">
+                                          {recipient.name} ({recipient.split.toFixed(1)}%)
+                                        </span>
+                                      ))}
+                                  </div>
+                                );
+                              } else {
+                                return (
+                                  <div className="track-no-payment-info">
+                                    <span style={{color: '#9cc2d1', fontSize: '12px', fontStyle: 'italic'}}>
+                                      ℹ️ No payment splits configured for this track
+                                    </span>
+                                  </div>
+                                );
+                              }
+                            })()
+                          )}
+                        </div>
                       </div>
                       {track.img && (
                         <img src={track.img} alt={track.title} className="track-image" />
@@ -511,7 +546,7 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
             
             {chapters && chapters.chapters.length > 0 ? (
               <>
-                <div className="chapters-list">
+                <div className="chapters-list" key={remoteValueRecipients.size}>
                   {chapters.chapters.map((chapter, index) => {
                   // Find the next chapter to calculate end time
                   const nextChapter = chapters.chapters[index + 1];
@@ -538,10 +573,31 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                     chapters.chapters[index + 1].startTime : 
                     Infinity; // For last chapter, include all remaining splits
                   
-                  const matchingSplits = valueTimeSplits.filter(split => {
-                    // Check if split starts within this chapter's range
-                    return split.startTime >= chapter.startTime && split.startTime < chapterEndTime;
-                  });
+                  const matchingSplits = valueTimeSplitService.getSplitsForTimeRange(
+                    valueTimeSplits,
+                    chapter.startTime,
+                    chapterEndTime
+                  );
+
+                  // Check if this is a music track (for payment info)
+                  const title = chapter.title.toLowerCase();
+                  const isMusicTrack = !title.includes('value') && 
+                                      !title.includes('boostagram') && 
+                                      !title.includes('hit these') &&
+                                      !title.includes('what do you desire') &&
+                                      !title.includes('decentralize') &&
+                                      !title.includes('new to demu') &&
+                                      !title.includes('matt the tall') &&
+                                      !title.includes('frankiepaint') &&
+                                      !title.includes('buttheart') &&
+                                      !title.includes('netned') &&
+                                      !title.includes('(213)') &&
+                                      !title.includes('tiddicate') &&
+                                      !title.includes('hgh ') &&
+                                      !title.includes('in the hitter') &&
+                                      !title.includes('07-24-25') &&
+                                      !title.includes('live') &&
+                                      !title.includes('homegrown hits');
 
                   return (
                     <div key={index} className="chapter-item">
@@ -558,7 +614,8 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                           </span>
                           {matchingSplits.length > 0 && matchingSplits.map((split, splitIndex) => (
                             <span key={splitIndex} className="chapter-remote-badge">
-                              ⚡ {valueTimeSplitService.formatValueTimeSplit(split)}
+                              ⚡ {valueTimeSplitService.formatTime(split.startTime)} - {valueTimeSplitService.formatTime(split.startTime + split.duration)}
+                              {split.remotePercentage > 0 && ` (${split.remotePercentage}% remote)`}
                             </span>
                           ))}
                         </div>
@@ -586,7 +643,7 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                         </div>
                         
                         <div className="chapter-payment-splits">
-                          {matchingSplits.length > 0 ? (
+                          {isMusicTrack && matchingSplits.length > 0 ? (
                             matchingSplits.map((split, splitIndex) => {
                               // Get the episode's main value recipients
                               const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
@@ -617,7 +674,7 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                             <span className="split-name">{recipient.name}:</span>
                                             <div className="split-percentage">
                                               <span className="main-percentage">
-                                                {(split.remotePercentage * recipient.split / 100).toFixed(2)}%
+                                                {(split.remotePercentage * recipient.split / 100).toFixed(1)}%
                                               </span>
                                               <span className="sub-percentage">
                                                 ({recipient.split}% of {split.remotePercentage}%)
@@ -662,8 +719,8 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                 </div>
                               );
                             })
-                          ) : (
-                            // Show default hosts for chapters without value time splits
+                          ) : isMusicTrack ? (
+                            // Show default hosts for music chapters without value time splits
                             (() => {
                               const mainValueBlock = valueRecipientService.extractValueRecipients(episode as RSSItem);
                               return mainValueBlock && mainValueBlock.recipients.length > 0 ? (
@@ -694,6 +751,48 @@ const EpisodeDetailPage: React.FC<EpisodeDetailPageProps> = ({ episodes, feedTyp
                                 </div>
                               ) : null;
                             })()
+                          ) : (
+                            // Non-music chapters show no payment information
+                            <div className="chapter-no-payment">
+                              <span style={{color: '#6c757d', fontSize: '14px', fontStyle: 'italic'}}>
+                                🎙️ Non-music segment
+                              </span>
+                            </div>
+                          )}
+                          
+                          {/* Value Time Split Details - Show after Hosts (only for music tracks) */}
+                          {isMusicTrack && matchingSplits.length > 0 && (
+                            <div className="splits-section value-splits-section">
+                              <h2 className="section-title">
+                                Value Time Splits
+                                <span className="percentage-badge">{matchingSplits.length}</span>
+                              </h2>
+                              {matchingSplits.map((split, splitIndex) => {
+                                const podcastTitle = podcastNames.get(split.remoteItem?.feedGuid || '') || 'Remote Podcast';
+                                const startTime = valueTimeSplitService.formatTime(split.startTime);
+                                const endTime = valueTimeSplitService.formatTime(split.startTime + split.duration);
+                                const remoteValueBlock = remoteValueRecipients.get(split.remoteItem?.feedGuid || '');
+                                
+                                return (
+                                  <div key={splitIndex} className="split-item">
+                                    <div className="split-info">
+                                      <div className="split-name">
+                                        ⚡ {startTime} - {endTime}
+                                      </div>
+                                      <div className="split-details">
+                                        <strong>{split.remotePercentage}% remote</strong> to {podcastTitle}
+                                      </div>
+                                      
+                                      {split.remoteItem && (
+                                        <div className="split-guid">
+                                          Feed GUID: {split.remoteItem.feedGuid}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
                       </div>

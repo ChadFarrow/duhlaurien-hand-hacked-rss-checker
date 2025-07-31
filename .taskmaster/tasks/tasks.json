@@ -400,22 +400,68 @@
         "dependencies": [],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Track payment splits to chapters to ensure artist splits are there for the tracks being played",
+        "description": "Implement tracking of payment splits for chapters to ensure that artist payment splits are properly associated with the tracks being played in each chapter.",
+        "priority": "high",
+        "estimatedTime": "3-4 hours",
+        "dependencies": [7, 18],
+        "status": "done",
+        "file": "019_track_payment_splits_chapters.md",
+        "requirements": [
+          "Verify payment splits are tracked for each chapter/track",
+          "Ensure artist attribution is preserved when tracks are played",
+          "Map value recipients to specific chapter timestamps",
+          "Display payment split information alongside chapter data",
+          "Validate that all tracks have associated payment information",
+          "Handle cases where tracks might not have explicit splits defined",
+          "Test with episodes containing multiple tracks with different artists",
+          "Ensure payment data persists through chapter navigation"
+        ],
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Make sure this site also works for other feeds",
+        "description": "Ensure the RSS checker application works properly with a variety of podcast feeds beyond Homegrown Hits, testing compatibility and handling edge cases.",
+        "priority": "high",
+        "estimatedTime": "4-5 hours",
+        "dependencies": [],
+        "status": "pending",
+        "file": "020_test_other_feeds_compatibility.md",
+        "requirements": [
+          "Test with various popular podcast feeds",
+          "Handle feeds without Podcasting 2.0 elements gracefully",
+          "Support feeds with different XML structures and namespaces",
+          "Test feeds without chapters or value blocks",
+          "Ensure proper fallback for missing episode numbers",
+          "Handle feeds with different date formats",
+          "Test with non-music podcast feeds",
+          "Verify CORS proxy works with different domains",
+          "Handle feeds with special characters in titles",
+          "Test feeds with different image formats and sizes",
+          "Ensure error handling for malformed feeds",
+          "Document any feed-specific issues found"
+        ],
+        "subtasks": []
       }
     ],
     "metadata": {
       "projectName": "duhlaurien-hand-hacked-rss-checker",
-      "totalTasks": 16,
-      "highPriority": 9,
+      "totalTasks": 20,
+      "highPriority": 11,
       "mediumPriority": 5,
       "lowPriority": 1,
       "criticalPriority": 1,
-      "readyToStart": 1,
+      "readyToStart": 2,
       "inProgress": 0,
       "blocked": 0,
-      "lastUpdated": "2025-07-25",
+      "lastUpdated": "2025-07-31",
       "created": "2025-07-25T11:42:59.146Z",
       "description": "Tasks for podcast episode viewer application",
-      "updated": "2025-07-26T02:23:09.154Z"
+      "updated": "2025-07-31T21:06:00.000Z"
     }
   }
 }

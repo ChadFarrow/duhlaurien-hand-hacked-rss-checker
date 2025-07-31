@@ -102,16 +102,33 @@ class ValueTimeSplitService {
     chapters: { startTime: number; title: string; img?: string; url?: string }[],
     valueTimeSplits: ValueTimeSplit[]
   ): ChapterWithValue[] {
-    return chapters.map(chapter => {
-      // Find all value time splits that fall within this chapter's time range
-      // For now, we'll assume each chapter extends to the next chapter's start time
-      // or use a reasonable duration if it's the last chapter
-      const chapterEndTime = chapter.startTime + 300; // 5 minutes default duration
+    return chapters.map((chapter, index) => {
+      // Find the next chapter to determine this chapter's end time
+      const nextChapter = chapters[index + 1];
+      const chapterEndTime = nextChapter ? nextChapter.startTime : Infinity;
       
+      // Find all value time splits that overlap with this chapter's time range
       const matchingSplits = valueTimeSplits.filter(split => {
         const splitEndTime = split.startTime + split.duration;
-        // Check if the split overlaps with the chapter time range
-        return split.startTime < chapterEndTime && splitEndTime > chapter.startTime;
+        
+        // A split matches if it overlaps with the chapter in any way:
+        // 1. Split starts within the chapter
+        // 2. Split ends within the chapter
+        // 3. Split encompasses the entire chapter
+        // 4. For splits without duration, check if they start within the chapter
+        if (split.duration === 0) {
+          // For splits without duration, match if they start within the chapter
+          return split.startTime >= chapter.startTime && split.startTime < chapterEndTime;
+        }
+        
+        return (
+          // Split starts within chapter
+          (split.startTime >= chapter.startTime && split.startTime < chapterEndTime) ||
+          // Split ends within chapter
+          (splitEndTime > chapter.startTime && splitEndTime <= chapterEndTime) ||
+          // Split encompasses chapter
+          (split.startTime <= chapter.startTime && splitEndTime >= chapterEndTime)
+        );
       });
 
       return {
@@ -140,7 +157,7 @@ class ValueTimeSplitService {
   /**
    * Format time in MM:SS or HH:MM:SS format
    */
-  private formatTime(seconds: number): string {
+  formatTime(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
@@ -164,6 +181,76 @@ class ValueTimeSplitService {
   hasValueTimeSplits(episode: RSSItem): boolean {
     const splits = this.extractValueTimeSplits(episode);
     return splits.length > 0;
+  }
+
+  /**
+   * Get value time splits that apply to a specific time range
+   * This is useful for finding splits that apply to a specific chapter/track
+   */
+  getSplitsForTimeRange(
+    splits: ValueTimeSplit[],
+    startTime: number,
+    endTime: number
+  ): ValueTimeSplit[] {
+    return splits.filter(split => {
+      if (split.duration === 0) {
+        // For splits without duration, check if they start within the range
+        return split.startTime >= startTime && split.startTime < endTime;
+      }
+      
+      const splitEndTime = split.startTime + split.duration;
+      return (
+        // Split starts within range
+        (split.startTime >= startTime && split.startTime < endTime) ||
+        // Split ends within range
+        (splitEndTime > startTime && splitEndTime <= endTime) ||
+        // Split encompasses range
+        (split.startTime <= startTime && splitEndTime >= endTime)
+      );
+    });
+  }
+
+  /**
+   * Validate that all chapters have associated payment splits
+   * Returns an object with validation results
+   */
+  validateChapterPaymentCoverage(
+    chapters: { startTime: number; title: string }[],
+    valueTimeSplits: ValueTimeSplit[]
+  ): {
+    totalChapters: number;
+    chaptersWithPayment: number;
+    chaptersWithoutPayment: string[];
+    coveragePercentage: number;
+  } {
+    const chaptersWithoutPayment: string[] = [];
+    let chaptersWithPayment = 0;
+
+    chapters.forEach((chapter, index) => {
+      const nextChapter = chapters[index + 1];
+      const chapterEndTime = nextChapter ? nextChapter.startTime : Infinity;
+      
+      const matchingSplits = this.getSplitsForTimeRange(
+        valueTimeSplits,
+        chapter.startTime,
+        chapterEndTime
+      );
+
+      if (matchingSplits.length > 0) {
+        chaptersWithPayment++;
+      } else {
+        chaptersWithoutPayment.push(chapter.title);
+      }
+    });
+
+    return {
+      totalChapters: chapters.length,
+      chaptersWithPayment,
+      chaptersWithoutPayment,
+      coveragePercentage: chapters.length > 0 
+        ? Math.round((chaptersWithPayment / chapters.length) * 100) 
+        : 0
+    };
   }
 }
 

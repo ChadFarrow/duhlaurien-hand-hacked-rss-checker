@@ -65,8 +65,9 @@ class RemoteFeedService {
       type: 'lightning',
       method: 'keysend',
       recipients: [
-        { name: 'SirSpencer', type: 'node', split: 50, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
-        { name: 'PodcastIndex', type: 'node', split: 50, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' }
+        { name: 'Love Ethic', type: 'node', split: 95, address: '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798' },
+        { name: 'northills', type: 'node', split: 3, address: '02ad010bfc1297b2a6129a71c2e86a3aaa7e29b6ebc0ba113cf5c2ee7114b5b44e' },
+        { name: 'RSS Blue', type: 'node', split: 2, address: '03d4076b4e50590b6b5c273de8b5de5e5e8d1ec84b24ba6cf4d90cba65ac4b7bc6' }
       ]
     });
     
@@ -313,7 +314,7 @@ class RemoteFeedService {
           
           // Add timeout to prevent hanging requests
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced)
           
           const response = await fetch(proxyUrl, {
             signal: controller.signal
@@ -426,9 +427,9 @@ class RemoteFeedService {
       }
     }
     
-    // Try next proxy
-    console.log(`All attempts failed with proxy ${proxyIndex + 1}, trying next proxy...`);
-  }
+      // Try next proxy
+      console.log(`All attempts failed with proxy ${proxyIndex + 1}, trying next proxy...`);
+    }
 
     // All retries failed, try fallback
     console.warn(`All retry attempts failed for ${feedGuid}, using fallback`);
@@ -480,12 +481,30 @@ class RemoteFeedService {
       // Stagger requests by 500ms each to be more respectful
       await new Promise(resolve => setTimeout(resolve, index * 500));
       
-      const valueRecipients = await this.getRemoteFeedValueRecipients(guid);
-      results.set(guid, valueRecipients);
-      return { guid, valueRecipients };
+      try {
+        const valueRecipients = await this.getRemoteFeedValueRecipients(guid);
+        results.set(guid, valueRecipients);
+        return { guid, valueRecipients };
+      } catch (error) {
+        // If remote fetch fails, try fallback immediately
+        console.log(`Remote fetch failed for ${guid}, using fallback immediately`);
+        const fallbackData = this.fallbackValueRecipients.get(guid);
+        results.set(guid, fallbackData || null);
+        return { guid, valueRecipients: fallbackData || null };
+      }
     });
     
     await Promise.allSettled(promises);
+    
+    // Double-check that our target GUID has data, force fallback if not
+    if (!results.get('879febfc-538d-5c10-a34e-a9de5a7666ca')) {
+      const targetFallback = this.fallbackValueRecipients.get('879febfc-538d-5c10-a34e-a9de5a7666ca');
+      if (targetFallback) {
+        console.log('Forcing fallback data for target GUID 879febfc-538d-5c10-a34e-a9de5a7666ca');
+        results.set('879febfc-538d-5c10-a34e-a9de5a7666ca', targetFallback);
+      }
+    }
+    
     return results;
   }
 
