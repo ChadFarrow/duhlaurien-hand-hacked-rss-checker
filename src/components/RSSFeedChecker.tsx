@@ -32,7 +32,7 @@ const RSSFeedChecker: React.FC = () => {
     'https://api.allorigins.win/get?url='
   ];
 
-  const fetchAndAnalyzeFeed = async () => {
+  const fetchAndAnalyzeFeed = async (forceRefresh: boolean = false) => {
     setLoading(true);
     setFeedData(null);
     
@@ -57,6 +57,7 @@ const RSSFeedChecker: React.FC = () => {
           const response = await axios.get(feedUrl, {
             headers: {
               'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+              'Cache-Control': forceRefresh ? 'no-cache' : 'max-age=0',
             },
             timeout: 10000,
           });
@@ -124,9 +125,11 @@ const RSSFeedChecker: React.FC = () => {
         setProgress(prev => ({ ...prev, current: 1, percentage: 25, currentRule: 'Fetching feed from Podcast Index...' }));
         
         // Fetch Homegrown Hits feed directly
-        const response = await axios.get('https://feed.homegrownhits.xyz/feed.xml', {
+        const timestamp = new Date().getTime();
+        const response = await axios.get(`https://feed.homegrownhits.xyz/feed.xml?t=${timestamp}`, {
           headers: {
             'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+            'Cache-Control': 'no-cache',
           },
           timeout: 10000,
         });
@@ -148,7 +151,8 @@ const RSSFeedChecker: React.FC = () => {
       setProgress(prev => ({ ...prev, percentage: 100, status: 'completed' }));
 
     } catch (err) {
-      setProgress(prev => ({ ...prev, status: 'error' }));
+      console.error('Error fetching/parsing feed:', err);
+      setProgress(prev => ({ ...prev, status: 'error', currentRule: `Error: ${err instanceof Error ? err.message : 'Unknown error'}` }));
     } finally {
       setLoading(false);
     }
@@ -162,7 +166,7 @@ const RSSFeedChecker: React.FC = () => {
           case 'Enter':
             event.preventDefault();
             if (!loading) {
-              fetchAndAnalyzeFeed();
+              fetchAndAnalyzeFeed(true);
             }
             break;
           case 'k':
@@ -183,7 +187,7 @@ const RSSFeedChecker: React.FC = () => {
 
   useEffect(() => {
     if (!useManualUrl) {
-      fetchAndAnalyzeFeed();
+      fetchAndAnalyzeFeed(true);
     }
   }, [useManualUrl]);
 
@@ -239,9 +243,10 @@ const RSSFeedChecker: React.FC = () => {
             disabled={loading || !useManualUrl}
           />
           <button 
-            onClick={fetchAndAnalyzeFeed} 
+            onClick={() => fetchAndAnalyzeFeed(true)} 
             disabled={loading || (useManualUrl && !feedUrl)} 
             className="check-btn"
+            title="Ctrl+Enter to refresh"
           >
             {loading ? (
               <>
@@ -249,22 +254,31 @@ const RSSFeedChecker: React.FC = () => {
                 🔄 Checking...
               </>
             ) : (
-              '✨ Check Feed'
+              feedData ? '🔄 Refresh Feed' : '✨ Check Feed'
             )}
           </button>
         </div>
       </div>
 
       {/* Progress Bar */}
-      {loading && progress.status === 'running' && (
+      {(loading || progress.status === 'error') && (
         <div className="progress-container">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${progress.percentage}%` }}
-            ></div>
-          </div>
-          <p className="progress-text">{progress.currentRule}</p>
+          {progress.status === 'running' && (
+            <>
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${progress.percentage}%` }}
+                ></div>
+              </div>
+              <p className="progress-text">{progress.currentRule}</p>
+            </>
+          )}
+          {progress.status === 'error' && (
+            <p className="error-text" style={{ color: '#ff6b6b', textAlign: 'center', marginTop: '10px' }}>
+              {progress.currentRule || 'An error occurred while fetching the feed'}
+            </p>
+          )}
         </div>
       )}
 
@@ -299,11 +313,6 @@ const RSSFeedChecker: React.FC = () => {
   let showArtwork = '';
   
   if (feedData?.rss?.channel) {
-    // Debug: Log the iTunes image structure
-    if (feedData.rss.channel['itunes:image']) {
-      console.log('iTunes image structure:', feedData.rss.channel['itunes:image']);
-    }
-    
     showArtwork = 
       // 1. Try channel-level iTunes image (multiple formats)
       feedData?.rss?.channel?.['itunes:image']?.$?.href ||
@@ -319,8 +328,6 @@ const RSSFeedChecker: React.FC = () => {
       feedData?.rss?.channel?.item?.[0]?.enclosure?.url?.replace(/\.(mp3|m4a|wav|ogg)$/i, '.jpg') ||
       // 5. Generic fallback
       'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
-      
-    console.log('Selected artwork URL:', showArtwork);
   } else {
     showArtwork = 'https://feed.homegrownhits.xyz/assets/images/episode-54.JPG';
   }
